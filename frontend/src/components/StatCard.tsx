@@ -1,46 +1,22 @@
-import { Card, CardContent, Typography, Box } from "@mui/material";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import { Card, CardContent, Typography } from "@mui/material";
 
 interface Props {
   title: string;
-  value: string;
+  value: number;
 }
 
-function StatCard({ title, value }: Props) {
+export default function StatCard({ title, value }: Props) {
   return (
-    <Card
-      sx={{
-        borderRadius: 3,
-        boxShadow: 4,
-        transition: "0.3s",
-        "&:hover": {
-          transform: "translateY(-5px)",
-        },
-      }}
-    >
+    <Card sx={{ minWidth: 200 }}>
       <CardContent>
-       <Box
-         sx={{
-           display: "flex",
-           justifyContent: "space-between",
-           alignItems: "center",
-     }}
-   >
-          <Box>
-            <Typography color="text.secondary">{title}</Typography>
-           <Typography
-             variant="h5"
-             sx={{ fontWeight: "bold" }}
-     >
-              {value}
-            </Typography>
-          </Box>
+        <Typography variant="subtitle1">
+          {title}
+        </Typography>
 
-          <TrendingUpIcon color="primary" sx={{ fontSize: 40 }} />
-        </Box>
+        <Typography variant="h4">
+          {value}
+        </Typography>
       </CardContent>
     </Card>
   );
 }
-
-export default StatCard;

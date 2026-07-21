@@ -1,36 +1,13 @@
-import { AppBar, Toolbar, Typography, Avatar, Box } from "@mui/material";
+import { AppBar, Toolbar, Typography } from "@mui/material";
 
-function Topbar() {
+export default function Topbar() {
   return (
-    <AppBar
-      position="static"
-      elevation={1}
-      sx={{
-        bgcolor: "white",
-        color: "black",
-      }}
-    >
+    <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6">
           RetailPulse Analytics
         </Typography>
-        <Box
-  sx={{
-    display: "flex",
-    alignItems: "center",
-    gap: 1,
-  }}
->
-  <Typography sx={{ fontWeight: "bold" }}>
-    Ramya
-  </Typography>
-
-  <Avatar>R</Avatar>
-</Box>
-          
       </Toolbar>
     </AppBar>
   );
 }
-
-export default Topbar;
