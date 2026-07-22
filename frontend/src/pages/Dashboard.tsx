@@ -1,32 +1,30 @@
 import { useEffect, useState } from "react";
+import { getDashboardStats } from "../api/dashboardApi";
 
 import {
-  Box,
+  Card,
+  CardContent,
   Grid,
-  Typography
+  Typography,
+  Box
 } from "@mui/material";
 
-import DashboardCard from "../components/DashboardCard";
 
-import Sidebar from "../components/Sidebar";
-import Topbar from "../components/Topbar";
-
-import {
-  getDashboardStats
-} from "../api/dashboardApi";
+const Dashboard = () => {
 
 
-export default function Dashboard() {
-
-  const companyId = 1;
-
-
-  const [stats, setStats] = useState({
-    total_products: 0,
-    total_categories: 0,
-    total_stock: 0,
-    low_stock_products: 0
+  const [statsData, setStatsData] = useState({
+    totalProducts: 0,
+    totalCategories: 0,
+    totalStock: 0,
+    lowStockItems: 0,
   });
+
+
+
+  useEffect(() => {
+    loadStats();
+  }, []);
 
 
 
@@ -34,9 +32,9 @@ export default function Dashboard() {
 
     try {
 
-      const response = await getDashboardStats(companyId);
+      const data = await getDashboardStats();
 
-      setStats(response.data);
+      setStatsData(data);
 
     } catch (error) {
 
@@ -48,97 +46,104 @@ export default function Dashboard() {
 
 
 
-  useEffect(() => {
 
-    loadStats();
-
-  }, []);
+  const stats = [
+    {
+      title:"Total Products",
+      value: statsData.totalProducts
+    },
+    {
+      title:"Total Categories",
+      value: statsData.totalCategories
+    },
+    {
+      title:"Total Stock",
+      value: statsData.totalStock
+    },
+    {
+      title:"Low Stock Items",
+      value: statsData.lowStockItems
+    }
+  ];
 
 
 
   return (
 
-    <Box sx={{ display: "flex" }}>
-
-      <Sidebar />
+    <Box>
 
 
-      <Box sx={{ flexGrow: 1 }}>
-
-        <Topbar />
-
-
-        <Box sx={{ p: 3 }}>
-
-
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            mb={3}
-          >
-            RetailPulse Analytics Dashboard
-          </Typography>
+      <Typography
+        variant="h4"
+        fontWeight="bold"
+        sx={{mb:4}}
+      >
+        RetailPulse Analytics Dashboard
+      </Typography>
 
 
 
-          <Grid container spacing={3}>
+      <Grid container spacing={3}>
 
 
-            <Grid size={{ xs: 12, md: 3 }}>
+        {
+          stats.map((item)=>(
 
-              <DashboardCard
-                title="Total Products"
-                value={stats.total_products}
-              />
+            <Grid item xs={12} sm={6} md={3} key={item.title}>
+
+
+              <Card
+                sx={{
+                  borderRadius:3,
+                  boxShadow:3,
+                  height:150
+                }}
+              >
+
+                <CardContent>
+
+
+                  <Typography
+                    color="text.secondary"
+                    variant="h6"
+                  >
+                    {item.title}
+                  </Typography>
+
+
+
+                  <Typography
+                    variant="h3"
+                    fontWeight="bold"
+                    sx={{
+                      mt:2
+                    }}
+                  >
+                    {item.value}
+                  </Typography>
+
+
+                </CardContent>
+
+
+              </Card>
+
 
             </Grid>
 
+          ))
+        }
 
 
-            <Grid size={{ xs: 12, md: 3 }}>
+      </Grid>
 
-              <DashboardCard
-                title="Total Categories"
-                value={stats.total_categories}
-              />
-
-            </Grid>
-
-
-
-            <Grid size={{ xs: 12, md: 3 }}>
-
-              <DashboardCard
-                title="Total Stock"
-                value={stats.total_stock}
-              />
-
-            </Grid>
-
-
-
-            <Grid size={{ xs: 12, md: 3 }}>
-
-              <DashboardCard
-                title="Low Stock Items"
-                value={stats.low_stock_products}
-              />
-
-            </Grid>
-
-
-          </Grid>
-
-
-
-        </Box>
-
-
-      </Box>
 
 
     </Box>
 
   );
 
-}
+};
+
+
+export default Dashboard;
