@@ -7,7 +7,6 @@ from app.models.category import Category
 from app.models.product import Product
 from app.models.sale import Sale
 from app.models.sale_item import SaleItem
-from app.routers.sale_router import router as sale_router
 
 from app.routers.company_router import router as company_router
 from app.routers.auth_router import router as auth_router
