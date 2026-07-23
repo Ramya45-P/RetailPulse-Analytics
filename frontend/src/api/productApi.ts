@@ -40,9 +40,6 @@ export const getProducts = (
   );
 };
 
-
-
-
 export const createProduct = (
   data:any
 )=>{

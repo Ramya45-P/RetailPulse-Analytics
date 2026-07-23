@@ -1,69 +1,82 @@
 import { useEffect, useState } from "react";
-import { getDashboardStats } from "../api/dashboardApi";
-
 import {
+  Grid,
   Card,
   CardContent,
-  Grid,
   Typography,
-  Box
+  Box,
 } from "@mui/material";
+
+import { getDashboardStats } from "../api/dashboardApi";
 
 
 const Dashboard = () => {
 
-
-  const [statsData, setStatsData] = useState({
-    totalProducts: 0,
-    totalCategories: 0,
-    totalStock: 0,
-    lowStockItems: 0,
-  });
-
-
-
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-
-
-  const loadStats = async () => {
-
+  const [stats, setStats] = useState({
+  totalUnitsSold: 0,
+  totalRevenue: 0,
+  totalOrders: 0,
+  averageOrderValue: 0,
+  totalProducts: 0,
+  activeProducts: 0,
+  inactiveProducts: 0,
+  totalCategories: 0,
+});
+useEffect(() => {
+const loadStats = async () => {
     try {
-
-      const data = await getDashboardStats();
-
-      setStatsData(data);
-
+const data = await getDashboardStats();
+console.log("Dashboard Data:", data);
+setStats(data);
     } catch (error) {
-
-      console.log(error);
-
+      console.error(error);
     }
-
   };
 
+  loadStats();
+}, []);
 
+  const cards = [
 
+    {
+      title:"Total Units Sold",
+      value:stats.totalUnitsSold
+    },
 
-  const stats = [
+    {
+      title:"Total Revenue",
+      value:`₹ ${stats.totalRevenue}`
+    },
+
+    {
+      title:"Total Orders",
+      value:stats.totalOrders
+    },
+
+    {
+      title:"Average Order Value",
+      value:`₹ ${stats.averageOrderValue}`
+    },
+
     {
       title:"Total Products",
-      value: statsData.totalProducts
+      value:stats.totalProducts
     },
+
+    {
+  title: "Active Products",
+  value: stats.activeProducts
+},
+{
+  title: "Inactive Products",
+  value: stats.inactiveProducts
+},
+
     {
       title:"Total Categories",
-      value: statsData.totalCategories
+      value:stats.totalCategories
     },
-    {
-      title:"Total Stock",
-      value: statsData.totalStock
-    },
-    {
-      title:"Low Stock Items",
-      value: statsData.lowStockItems
-    }
+
   ];
 
 
@@ -72,11 +85,10 @@ const Dashboard = () => {
 
     <Box>
 
-
       <Typography
         variant="h4"
         fontWeight="bold"
-        sx={{mb:4}}
+        mb={3}
       >
         RetailPulse Analytics Dashboard
       </Typography>
@@ -85,51 +97,43 @@ const Dashboard = () => {
 
       <Grid container spacing={3}>
 
-
         {
-          stats.map((item)=>(
+          cards.map((card,index)=>(
 
-            <Grid item xs={12} sm={6} md={3} key={item.title}>
-
+            <Grid item xs={12} sm={6} md={3} key={index}>
 
               <Card
                 sx={{
-                  borderRadius:3,
-                  boxShadow:3,
-                  height:150
+                  height:"130px",
+                  borderRadius:3
                 }}
               >
 
                 <CardContent>
 
-
                   <Typography
                     color="text.secondary"
-                    variant="h6"
                   >
-                    {item.title}
+                    {card.title}
                   </Typography>
 
 
-
                   <Typography
-                    variant="h3"
+                    variant="h4"
                     fontWeight="bold"
-                    sx={{
-                      mt:2
-                    }}
+                    mt={2}
                   >
-                    {item.value}
+                    {card.value}
                   </Typography>
 
 
                 </CardContent>
 
-
               </Card>
 
 
             </Grid>
+
 
           ))
         }
@@ -138,10 +142,10 @@ const Dashboard = () => {
       </Grid>
 
 
-
     </Box>
 
   );
+
 
 };
 
