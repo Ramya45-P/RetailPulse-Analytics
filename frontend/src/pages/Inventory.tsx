@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   Table,
   TableBody,
@@ -6,111 +7,184 @@ import {
   TableHead,
   TableRow,
   Button,
-  TextField,
+  Paper,
+  TableContainer,
+  Typography,
+  Box,
 } from "@mui/material";
 
-const Inventory = () => {
+import Sidebar from "../components/Sidebar";
+import Topbar from "../components/Topbar";
 
-  const [productName, setProductName] = useState("");
-  const [stock, setStock] = useState("");
-
-  const [inventory, setInventory] = useState<any[]>([]);
+import { getProducts } from "../api/productApi";
 
 
-  const addInventory = () => {
+interface Product {
+  id:number;
+  name:string;
+  sku:string;
+  stock_quantity:number;
+  status:string;
+}
 
-    const newItem = {
-      id: Date.now(),
-      product_name: productName,
-      stock: Number(stock),
-    };
 
-    setInventory([...inventory, newItem]);
+export default function Inventory(){
 
-    setProductName("");
-    setStock("");
+  const companyId = 1;
+
+  const [products,setProducts] = useState<Product[]>([]);
+
+
+  const loadInventory = async()=>{
+
+    try{
+
+      const res = await getProducts(companyId);
+
+      setProducts(res.data);
+
+    }
+    catch(err){
+      console.log(err);
+    }
 
   };
 
 
+  useEffect(()=>{
+
+    loadInventory();
+
+  },[]);
+
+
+
   return (
-    <div>
 
-      <h1>Inventory</h1>
+    <Box sx={{display:"flex"}}>
 
-
-      <TextField
-        label="Product Name"
-        value={productName}
-        onChange={(e)=>setProductName(e.target.value)}
-        sx={{marginRight:2}}
-      />
+      <Sidebar/>
 
 
-      <TextField
-        label="Stock"
-        type="number"
-        value={stock}
-        onChange={(e)=>setStock(e.target.value)}
-        sx={{marginRight:2}}
-      />
+      <Box sx={{flexGrow:1}}>
+
+        <Topbar/>
 
 
-      <Button
-        variant="contained"
-        onClick={addInventory}
-      >
-        Add Stock
-      </Button>
+        <Box sx={{p:3}}>
 
 
-      <Table sx={{marginTop:3}}>
-
-        <TableHead>
-
-          <TableRow>
-            <TableCell>Product</TableCell>
-            <TableCell>Stock</TableCell>
-            <TableCell>Action</TableCell>
-          </TableRow>
-
-        </TableHead>
+          <Typography variant="h4" mb={3}>
+            Inventory
+          </Typography>
 
 
-        <TableBody>
 
-          {
-            inventory.map((item)=>(
-              <TableRow key={item.id}>
+          <TableContainer component={Paper}>
 
-                <TableCell>
-                  {item.product_name}
-                </TableCell>
-
-                <TableCell>
-                  {item.stock}
-                </TableCell>
-
-                <TableCell>
-
-                  <Button color="error">
-                    Delete
-                  </Button>
-
-                </TableCell>
-
-              </TableRow>
-            ))
-          }
-
-        </TableBody>
-
-      </Table>
+            <Table>
 
 
-    </div>
+              <TableHead>
+
+                <TableRow>
+
+                  <TableCell>
+                    Product Name
+                  </TableCell>
+
+
+                  <TableCell>
+                    Stock
+                  </TableCell>
+
+
+                  <TableCell>
+                    Status
+                  </TableCell>
+
+
+                  <TableCell>
+                    Action
+                  </TableCell>
+
+
+                </TableRow>
+
+              </TableHead>
+
+
+
+              <TableBody>
+
+
+                {
+                  products.map((product)=>(
+
+                    <TableRow key={product.id}>
+
+
+                      <TableCell>
+                        {product.name}
+                      </TableCell>
+
+
+                      <TableCell>
+                        {product.stock_quantity}
+                      </TableCell>
+
+
+                      <TableCell>
+
+                        {
+                          product.stock_quantity <= 10
+                          ?
+                          "Low Stock"
+                          :
+                          "Available"
+                        }
+
+                      </TableCell>
+
+
+
+                      <TableCell>
+
+                        <Button
+                          variant="contained"
+                          size="small"
+                        >
+                          View
+                        </Button>
+
+
+                      </TableCell>
+
+
+                    </TableRow>
+
+                  ))
+                }
+
+
+
+              </TableBody>
+
+
+            </Table>
+
+
+          </TableContainer>
+
+
+        </Box>
+
+
+      </Box>
+
+
+    </Box>
+
   );
-};
 
-
-export default Inventory;
+}

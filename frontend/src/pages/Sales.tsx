@@ -1,120 +1,244 @@
-import { useEffect,useState } from "react";
-import {
-Table,
-TableBody,
-TableCell,
-TableHead,
-TableRow,
-Button
-} from "@mui/material";
+import { useEffect, useState } from "react";
 
 import {
-getSales,
-createSale,
-deleteSale,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Button,
+  Paper,
+  TableContainer,
+  Typography,
+} from "@mui/material";
+
+import Sidebar from "../components/Sidebar";
+import Topbar from "../components/Topbar";
+
+import {
+  getSales,
+  deleteSale,
 } from "../api/saleApi";
 
 import SalesForm from "../components/SalesForm";
 
 
-const Sales =()=>{
+export default function Sales() {
 
-const [sales,setSales]=useState<any[]>([]);
+  const companyId = 1;
 
-const loadSales=async()=>{
-
-const data=await getSales(1);
-
-setSales(data);
-
-};
+  const [sales, setSales] = useState<any[]>([]);
 
 
-useEffect(()=>{
-loadSales();
-},[]);
+  const loadSales = async () => {
+
+    try {
+
+      const data = await getSales(companyId);
+
+      setSales(data);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  };
+
+
+  useEffect(() => {
+
+    loadSales();
+
+  }, []);
 
 
 
-return (
+  const handleDelete = async (id:number) => {
 
-<div>
+    try {
 
-<h1>Sales</h1>
+      await deleteSale(id);
 
+      loadSales();
 
-<SalesForm refresh={loadSales}/>
+    } catch(error){
 
+      console.log(error);
 
-<Table>
+    }
 
-<TableHead>
-
-<TableRow>
-
-<TableCell>Invoice</TableCell>
-<TableCell>Customer</TableCell>
-<TableCell>Total</TableCell>
-<TableCell>Action</TableCell>
-
-</TableRow>
-
-</TableHead>
+  };
 
 
-<TableBody>
 
-{
-sales.map((sale)=>(
+  return (
 
-<TableRow key={sale.id}>
-
-<TableCell>
-{sale.invoice_number}
-</TableCell>
+    <Box sx={{ display:"flex" }}>
 
 
-<TableCell>
-{sale.customer_name}
-</TableCell>
+      <Sidebar />
 
 
-<TableCell>
-₹ {sale.total_amount}
-</TableCell>
+      <Box sx={{ flexGrow:1 }}>
 
 
-<TableCell>
-
-<Button
-color="error"
-onClick={async()=>{
-await deleteSale(sale.id);
-loadSales();
-}}
->
-Delete
-</Button>
-
-</TableCell>
+        <Topbar />
 
 
-</TableRow>
+        <Box sx={{ p:3 }}>
 
-))
+
+          <Typography variant="h4" mb={3}>
+            Sales Management
+          </Typography>
+
+
+
+          <SalesForm refresh={loadSales} />
+
+
+
+          <TableContainer 
+            component={Paper}
+            sx={{ mt:4 }}
+          >
+
+            <Table>
+
+
+              <TableHead>
+
+                <TableRow>
+
+                  <TableCell>
+                    Invoice
+                  </TableCell>
+
+                  <TableCell>
+                    Customer
+                  </TableCell>
+
+                  <TableCell>
+                    Sales Channel
+                  </TableCell>
+
+                  <TableCell>
+                    Payment Method
+                  </TableCell>
+
+                  <TableCell>
+                    Total Amount
+                  </TableCell>
+
+                  <TableCell>
+                    Action
+                  </TableCell>
+
+                </TableRow>
+
+              </TableHead>
+
+
+
+              <TableBody>
+
+
+                {
+                  sales.map((sale)=>(
+
+                    <TableRow key={sale.id}>
+
+
+                      <TableCell>
+                        {sale.invoice_number}
+                      </TableCell>
+
+
+                      <TableCell>
+                        {sale.customer_name}
+                      </TableCell>
+
+
+                      <TableCell>
+                        {sale.sales_channel}
+                      </TableCell>
+
+
+                      <TableCell>
+                        {sale.payment_method}
+                      </TableCell>
+
+
+                      <TableCell>
+                        ₹ {sale.total_amount}
+                      </TableCell>
+
+
+
+                      <TableCell>
+
+                        <Button
+                          variant="contained"
+                          color="error"
+                          size="small"
+                          onClick={() =>
+                            handleDelete(sale.id)
+                          }
+                        >
+                          Delete
+                        </Button>
+
+
+                      </TableCell>
+
+
+                    </TableRow>
+
+                  ))
+                }
+
+
+
+                {
+                  sales.length === 0 && (
+
+                    <TableRow>
+
+                      <TableCell 
+                        colSpan={6}
+                        align="center"
+                      >
+                        No Sales Found
+                      </TableCell>
+
+                    </TableRow>
+
+                  )
+                }
+
+
+
+              </TableBody>
+
+
+            </Table>
+
+
+          </TableContainer>
+
+
+
+        </Box>
+
+
+      </Box>
+
+
+    </Box>
+
+  );
+
 }
-
-
-</TableBody>
-
-</Table>
-
-
-</div>
-
-)
-
-}
-
-
-export default Sales;
