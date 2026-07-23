@@ -14,7 +14,7 @@ from app.routers.auth_router import router as auth_router
 from app.routers.profile_router import router as profile_router
 from app.routers.category_router import router as category_router
 from app.routers.product_router import router as product_router
-
+from app.routers.dashboard_router import router as dashboard_router
 from app.routers.sale_router import router as sale_router
 
 app = FastAPI(
@@ -40,6 +40,7 @@ app.include_router(profile_router)
 app.include_router(category_router)
 app.include_router(product_router)
 app.include_router(sale_router)
+app.include_router(dashboard_router)
 
 @app.get("/")
 def root():
