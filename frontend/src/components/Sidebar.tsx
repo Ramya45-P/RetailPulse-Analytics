@@ -6,6 +6,8 @@ import {
   ListItemIcon,
   ListItemText,
   Toolbar,
+  Box,
+  Typography,
 } from "@mui/material";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -13,6 +15,7 @@ import InventoryIcon from "@mui/icons-material/Inventory";
 import CategoryIcon from "@mui/icons-material/Category";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 
 import { Link, useLocation } from "react-router-dom";
 
@@ -51,6 +54,12 @@ export default function Sidebar() {
       icon: <BarChartIcon />,
       path: "/inventory",
     },
+    {
+  text: "Reports",
+  icon: <AssessmentIcon />,
+  path: "/reports",
+},
+
   ];
 
 
@@ -81,6 +90,29 @@ export default function Sidebar() {
     >
 
       <Toolbar />
+      <Box
+  sx={{
+    textAlign: "center",
+    py: 3,
+  }}
+>
+  <Typography
+    variant="h5"
+    sx={{
+      fontWeight: 700,
+      color: "#1976d2",
+    }}
+  >
+    RetailPulse
+  </Typography>
+
+  <Typography
+    variant="body2"
+    color="text.secondary"
+  >
+    Analytics
+  </Typography>
+</Box>
 
 
       <List>

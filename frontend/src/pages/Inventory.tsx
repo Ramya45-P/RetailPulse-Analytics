@@ -1,187 +1,245 @@
 import { useEffect, useState } from "react";
 
 import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
-  Button,
   Paper,
-  TableContainer,
-  Typography,
-  Box,
+  Chip,
+  Grid,
 } from "@mui/material";
 
-import Sidebar from "../components/Sidebar";
-import Topbar from "../components/Topbar";
-
-import { getProducts } from "../api/productApi";
+import { getInventory } from "../api/inventoryApi";
 
 
-interface Product {
-  id:number;
-  name:string;
-  sku:string;
-  stock_quantity:number;
-  status:string;
+interface InventoryItem {
+  id: number;
+  product_name: string;
+  stock: number;
 }
 
 
-export default function Inventory(){
+export default function Inventory() {
 
-  const companyId = 1;
-
-  const [products,setProducts] = useState<Product[]>([]);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
 
 
-  const loadInventory = async()=>{
+  useEffect(() => {
 
-    try{
+    const fetchInventory = async () => {
 
-      const res = await getProducts(companyId);
+      const data = await getInventory(1);
+      setInventory(data);
 
-      setProducts(res.data);
+    };
 
-    }
-    catch(err){
-      console.log(err);
-    }
+    fetchInventory();
 
-  };
-
-
-  useEffect(()=>{
-
-    loadInventory();
-
-  },[]);
-
+  }, []);
 
 
   return (
 
-    <Box sx={{display:"flex"}}>
+    <Box>
 
-      <Sidebar/>
-
-
-      <Box sx={{flexGrow:1}}>
-
-        <Topbar/>
+      <Box sx={{ p: 3 }}>
 
 
-        <Box sx={{p:3}}>
+        <Typography variant="h4" mb={3}>
+          Inventory Overview
+        </Typography>
 
 
-          <Typography variant="h4" mb={3}>
-            Inventory
-          </Typography>
+        <Grid container spacing={3} mb={3}>
 
 
+          <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent>
 
-          <TableContainer component={Paper}>
+                <Typography color="text.secondary">
+                  Total Products
+                </Typography>
 
-            <Table>
+                <Typography variant="h4">
+                  {inventory.length}
+                </Typography>
 
-
-              <TableHead>
-
-                <TableRow>
-
-                  <TableCell>
-                    Product Name
-                  </TableCell>
-
-
-                  <TableCell>
-                    Stock
-                  </TableCell>
-
-
-                  <TableCell>
-                    Status
-                  </TableCell>
-
-
-                  <TableCell>
-                    Action
-                  </TableCell>
-
-
-                </TableRow>
-
-              </TableHead>
+              </CardContent>
+            </Card>
+          </Grid>
 
 
 
-              <TableBody>
+          <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent>
+
+                <Typography color="text.secondary">
+                  Low Stock
+                </Typography>
+
+                <Typography variant="h4">
+
+                  {
+                    inventory.filter(
+                      item => item.stock > 0 && item.stock <= 5
+                    ).length
+                  }
+
+                </Typography>
+
+              </CardContent>
+            </Card>
+          </Grid>
 
 
-                {
-                  products.map((product)=>(
 
-                    <TableRow key={product.id}>
+          <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent>
+
+                <Typography color="text.secondary">
+                  Out Of Stock
+                </Typography>
+
+                <Typography variant="h4">
+
+                  {
+                    inventory.filter(
+                      item => item.stock === 0
+                    ).length
+                  }
+
+                </Typography>
+
+              </CardContent>
+            </Card>
+          </Grid>
+
+
+        </Grid>
+
+
+
+        <Card>
+
+          <CardContent>
+
+            <Typography variant="h5" mb={3}>
+              Inventory
+            </Typography>
+
+
+            <TableContainer component={Paper}>
+
+              <Table>
+
+
+                <TableHead>
+
+                  <TableRow>
+
+                    <TableCell>
+                      Product Name
+                    </TableCell>
+
+                    <TableCell>
+                      Stock
+                    </TableCell>
+
+                    <TableCell>
+                      Status
+                    </TableCell>
+                    <TableCell>
+                      Action
+                    </TableCell>
+                  </TableRow>
+
+                </TableHead>
+
+
+
+                <TableBody>
+
+
+                  {inventory.map((item) => (
+
+                    <TableRow key={item.id}>
 
 
                       <TableCell>
-                        {product.name}
+                        {item.product_name}
                       </TableCell>
 
 
                       <TableCell>
-                        {product.stock_quantity}
+                        {item.stock}
                       </TableCell>
 
 
                       <TableCell>
 
-                        {
-                          product.stock_quantity <= 10
-                          ?
-                          "Low Stock"
-                          :
-                          "Available"
-                        }
+                        {item.stock === 0 ? (
+
+                          <Chip
+                            label="Out of Stock"
+                            color="error"
+                          />
+
+                        ) : item.stock <= 5 ? (
+
+                          <Chip
+                            label="Low Stock"
+                            color="warning"
+                          />
+
+                        ) : (
+
+                          <Chip
+                            label="Available"
+                            color="success"
+                          />
+
+                        )}
 
                       </TableCell>
-
-
-
                       <TableCell>
 
-                        <Button
-                          variant="contained"
-                          size="small"
-                        >
-                          View
-                        </Button>
+  <Chip
+    label="View"
+    color="primary"
+    clickable
+  />
 
-
-                      </TableCell>
-
+</TableCell>
 
                     </TableRow>
 
-                  ))
-                }
+                  ))}
 
 
-
-              </TableBody>
-
-
-            </Table>
+                </TableBody>
 
 
-          </TableContainer>
+              </Table>
+
+            </TableContainer>
 
 
-        </Box>
+          </CardContent>
+
+        </Card>
 
 
       </Box>
-
 
     </Box>
 

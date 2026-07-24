@@ -42,17 +42,19 @@ def create_user(db: Session, user: UserCreate):
     return db_user
 
 
-
 def login_user(db: Session, email: str, password: str):
+
+    print("LOGIN EMAIL:", email)
+    print("LOGIN PASSWORD:", password)
 
     user = db.query(User).filter(
         User.email == email
     ).first()
 
+    print("USER FOUND:", user)
 
     if not user:
         return None
-
 
     if not verify_password(
         password,
@@ -60,14 +62,12 @@ def login_user(db: Session, email: str, password: str):
     ):
         return None
 
-
     token = create_access_token(
         {
             "sub": user.email,
             "user_id": user.id,
         }
     )
-
 
     return {
         "access_token": token,

@@ -19,29 +19,17 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
 
   const [form, setForm] = useState({
-
-    company_id: 1,
-
-    customer_name: "",
-
-    product_id: 0,
-
-    category_id: 0,
-
-    quantity: 1,
-
-    unit_price: 0,
-
-    discount: 0,
-
-    tax: 0,
-
-    sales_channel: "Retail Store",
-
-    payment_method: "Cash",
-
-  });
-
+  company_id: 1,
+  customer_name: "",
+  product_id: "",
+  category_id: 0,
+  quantity: 1,
+  unit_price: 0,
+  discount: 0,
+  tax: 0,
+  sales_channel: "Retail Store",
+  payment_method: "Cash",
+});
 
 
   useEffect(() => {

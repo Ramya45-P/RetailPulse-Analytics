@@ -18,6 +18,7 @@ import Inventory from "./pages/Inventory";
 import Layout from "./components/Layout";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
+import Reports from "./pages/Reports";
 
 
 function App() {
@@ -89,6 +90,11 @@ function App() {
             path="/inventory"
             element={<Inventory />}
           />
+
+          <Route
+           path="/reports"
+            element={<Reports />} 
+            />
 
         </Route>
 

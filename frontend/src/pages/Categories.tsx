@@ -16,8 +16,6 @@ import {
   Typography,
 } from "@mui/material";
 
-import Sidebar from "../components/Sidebar";
-import Topbar from "../components/Topbar";
 
 import {
   getCategories,
@@ -115,14 +113,9 @@ export default function Categories() {
     loadCategories();
   };
 
-  return (
-    <Box sx={{ display: "flex" }}>
-      <Sidebar />
-
-      <Box sx={{ flexGrow: 1 }}>
-        <Topbar />
-
-        <Box sx={{ p: 3 }}>
+  
+   return (
+  <Box sx={{ p: 3 }}>
           <Typography variant="h4" mb={3}>
             Category Management
           </Typography>
@@ -264,7 +257,6 @@ export default function Categories() {
             </Table>
           </TableContainer>
         </Box>
-      </Box>
-    </Box>
+      
   );
 }
