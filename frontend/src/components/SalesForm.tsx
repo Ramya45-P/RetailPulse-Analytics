@@ -14,28 +14,31 @@ import { createSale } from "../api/saleApi";
 
 const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
+  const companyId = Number(localStorage.getItem("company_id")) || 1;
 
   const [products, setProducts] = useState<any[]>([]);
 
 
-  const [form, setForm] = useState({
-  company_id: 1,
-  customer_name: "",
-  product_id: "",
-  category_id: 0,
-  quantity: 1,
-  unit_price: 0,
-  discount: 0,
-  tax: 0,
-  sales_channel: "Retail Store",
-  payment_method: "Cash",
-});
+  const initialForm = {
+    company_id: companyId,
+    customer_name: "",
+    product_id: "",
+    category_id: 0,
+    quantity: 1,
+    unit_price: 0,
+    discount: 0,
+    tax: 0,
+    sales_channel: "Retail Store",
+    payment_method: "Cash",
+  };
+
+
+  const [form, setForm] = useState(initialForm);
+
 
 
   useEffect(() => {
-
     loadProducts();
-
   }, []);
 
 
@@ -44,26 +47,43 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
     try {
 
-      const response = await getProducts(1);
+      const response = await getProducts(companyId);
 
-      const data = response.data;
-
-
-      setProducts(data);
+      console.log("Products Response:", response);
 
 
+      let productList:any[] = [];
 
-      if(data.length > 0){
+
+      if(Array.isArray(response)){
+        productList = response;
+      }
+      else if(Array.isArray(response.data)){
+        productList = response.data;
+      }
+      else if(response.data?.products){
+        productList = response.data.products;
+      }
+
+
+      console.log("Product List:", productList);
+
+
+      setProducts(productList);
+
+
+
+      if(productList.length > 0){
 
         setForm((prev)=>({
 
           ...prev,
 
-          product_id:data[0].id,
+          product_id: productList[0].id,
 
-          category_id:data[0].category_id,
+          category_id: productList[0].category_id,
 
-          unit_price:data[0].unit_price,
+          unit_price: productList[0].unit_price,
 
         }));
 
@@ -73,7 +93,9 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
     }
     catch(error){
 
-      console.log(error);
+      console.log("Loading products failed:",error);
+
+      setProducts([]);
 
     }
 
@@ -82,8 +104,7 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
 
 
-  const handleChange = (e:any)=>{
-
+  const handleChange=(e:any)=>{
 
     const {name,value}=e.target;
 
@@ -95,28 +116,16 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
       [name]:
 
-      [
+      ["quantity","discount","tax"].includes(name)
 
-        "quantity",
+      ? Number(value)
 
-        "discount",
-
-        "tax"
-
-      ].includes(name)
-
-      ?
-
-      Number(value)
-
-      :
-
-      value
+      : value
 
     });
 
-
   };
+
 
 
 
@@ -129,7 +138,6 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
       (p)=>p.id===Number(e.target.value)
 
     );
-
 
 
     if(!selected) return;
@@ -153,6 +161,7 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
 
 
+
   const totalAmount =
 
     Number(form.quantity) *
@@ -171,7 +180,6 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
 
 
-
   const submitSale = async()=>{
 
 
@@ -181,6 +189,8 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
       await createSale({
 
         ...form,
+
+        product_id:Number(form.product_id),
 
         quantity:Number(form.quantity),
 
@@ -197,28 +207,15 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
       alert("Sale Added Successfully");
 
 
-
       setForm({
 
-        company_id:1,
+        ...initialForm,
 
-        customer_name:"",
+        product_id: products.length ? products[0].id : "",
 
-        product_id:products.length ? products[0].id : 0,
+        category_id: products.length ? products[0].category_id : 0,
 
-        category_id:products.length ? products[0].category_id : 0,
-
-        quantity:1,
-
-        unit_price:products.length ? products[0].unit_price : 0,
-
-        discount:0,
-
-        tax:0,
-
-        sales_channel:"Retail Store",
-
-        payment_method:"Cash",
+        unit_price: products.length ? products[0].unit_price : 0,
 
       });
 
@@ -244,329 +241,330 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
 
 
-
   return (
 
+<Box
 
-    <Box
+sx={{
 
-      sx={{
+mb:4,
 
-        mb:4,
+display:"flex",
 
-        display:"flex",
+flexDirection:"column",
 
-        flexDirection:"column",
+gap:2,
 
-        gap:2,
+maxWidth:450,
 
-        maxWidth:450,
+}}
 
-      }}
+>
 
-    >
 
 
+<Typography
 
-      <Typography
+variant="h6"
 
-        variant="h6"
+fontWeight="bold"
 
-        fontWeight="bold"
+>
 
-      >
+Add Sale Transaction
 
-        Add Sale Transaction
+</Typography>
 
-      </Typography>
 
 
 
 
+<TextField
 
-      <TextField
+label="Customer Name"
 
-        label="Customer Name"
+name="customer_name"
 
-        name="customer_name"
+value={form.customer_name}
 
-        value={form.customer_name}
+onChange={handleChange}
 
-        onChange={handleChange}
+fullWidth
 
-        fullWidth
+/>
 
-      />
 
 
 
 
+<TextField
 
-      <TextField
+select
 
-        select
+label="Product"
 
-        label="Product"
+value={form.product_id}
 
-        value={form.product_id}
+onChange={handleProductChange}
 
-        onChange={handleProductChange}
+fullWidth
 
-        fullWidth
+>
 
-      >
 
+{
 
-        {
+products.length > 0 ? (
 
-          products.map((product)=>(
+products.map((product)=>(
 
+<MenuItem
 
-            <MenuItem
+key={product.id}
 
-              key={product.id}
+value={product.id}
 
-              value={product.id}
+>
 
-            >
+{product.name}
 
-              {product.name}
+</MenuItem>
 
-            </MenuItem>
+))
 
+)
 
-          ))
+:(
 
-        }
+<MenuItem disabled>
 
+No Products Available
 
-      </TextField>
+</MenuItem>
 
+)
 
+}
 
 
+</TextField>
 
-      <TextField
 
-        label="Unit Price"
 
-        value={form.unit_price}
 
-        InputProps={{
 
-          readOnly:true,
+<TextField
 
-        }}
+label="Unit Price"
 
-        fullWidth
+value={form.unit_price}
 
-      />
+InputProps={{
 
+readOnly:true
 
+}}
 
+fullWidth
 
+/>
 
 
-      <TextField
 
-        label="Quantity"
 
-        name="quantity"
 
-        type="number"
+<TextField
 
-        value={form.quantity}
+label="Quantity"
 
-        onChange={handleChange}
+name="quantity"
 
-        fullWidth
+type="number"
 
-      />
+value={form.quantity}
 
+onChange={handleChange}
 
+fullWidth
 
+/>
 
 
-      <TextField
 
-        label="Discount"
 
-        name="discount"
 
-        type="number"
+<TextField
 
-        value={form.discount}
+label="Discount"
 
-        onChange={handleChange}
+name="discount"
 
-        fullWidth
+type="number"
 
-      />
+value={form.discount}
 
+onChange={handleChange}
 
+fullWidth
 
+/>
 
 
-      <TextField
 
-        label="Tax"
 
-        name="tax"
 
-        type="number"
+<TextField
 
-        value={form.tax}
+label="Tax"
 
-        onChange={handleChange}
+name="tax"
 
-        fullWidth
+type="number"
 
-      />
+value={form.tax}
 
+onChange={handleChange}
 
+fullWidth
 
+/>
 
 
 
 
-      <TextField
 
-        select
+<TextField
 
-        label="Sales Channel"
+select
 
-        name="sales_channel"
+label="Sales Channel"
 
-        value={form.sales_channel}
+name="sales_channel"
 
-        onChange={handleChange}
+value={form.sales_channel}
 
-        fullWidth
+onChange={handleChange}
 
-      >
+fullWidth
 
-        <MenuItem value="Retail Store">
+>
 
-          Retail Store
 
-        </MenuItem>
+<MenuItem value="Retail Store">
 
+Retail Store
 
-        <MenuItem value="Online Store">
+</MenuItem>
 
-          Online Store
 
-        </MenuItem>
+<MenuItem value="Online Store">
 
+Online Store
 
-        <MenuItem value="Marketplace">
+</MenuItem>
 
-          Marketplace
 
-        </MenuItem>
+<MenuItem value="Marketplace">
 
+Marketplace
 
-      </TextField>
+</MenuItem>
 
 
+</TextField>
 
 
 
 
 
-      <TextField
+<TextField
 
-        select
+select
 
-        label="Payment Method"
+label="Payment Method"
 
-        name="payment_method"
+name="payment_method"
 
-        value={form.payment_method}
+value={form.payment_method}
 
-        onChange={handleChange}
+onChange={handleChange}
 
-        fullWidth
+fullWidth
 
-      >
+>
 
 
-        <MenuItem value="Cash">
+<MenuItem value="Cash">
 
-          Cash
+Cash
 
-        </MenuItem>
+</MenuItem>
 
 
-        <MenuItem value="Card">
+<MenuItem value="Card">
 
-          Card
+Card
 
-        </MenuItem>
+</MenuItem>
 
 
-        <MenuItem value="UPI">
+<MenuItem value="UPI">
 
-          UPI
+UPI
 
-        </MenuItem>
+</MenuItem>
 
 
-        <MenuItem value="Bank Transfer">
+<MenuItem value="Bank Transfer">
 
-          Bank Transfer
+Bank Transfer
 
-        </MenuItem>
+</MenuItem>
 
 
-      </TextField>
+</TextField>
 
 
 
 
 
+<Typography
 
+variant="h6"
 
+color="primary"
 
-      <Typography
+>
 
-        variant="h6"
+Total Amount: ₹ {totalAmount.toFixed(2)}
 
-        color="primary"
+</Typography>
 
-      >
 
-        Total Amount: ₹ {totalAmount.toFixed(2)}
 
-      </Typography>
 
 
+<Button
 
+variant="contained"
 
+color="primary"
 
+onClick={submitSale}
 
+disabled={products.length===0}
 
-      <Button
+>
 
-        variant="contained"
+Add Sale
 
-        onClick={submitSale}
+</Button>
 
-        disabled={products.length===0}
 
-      >
 
-        Add Sale
-
-      </Button>
-
-
-
-    </Box>
-
+</Box>
 
   );
-
 
 };
 

@@ -41,29 +41,55 @@ export default function Categories() {
     company_id: companyId,
   };
 
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [form, setForm] = useState(emptyForm);
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
 
   const loadCategories = async () => {
-    try {
-      const res = await getCategories(companyId);
+  try {
 
-      let data = res.data;
+    const res = await getCategories(companyId);
 
-      if (search.trim() !== "") {
-        data = data.filter((item: Category) =>
-          item.name.toLowerCase().includes(search.toLowerCase())
-        );
-      }
+    console.log("Categories Response:", res);
 
-      setCategories(data);
-    } catch (err) {
-      console.log(err);
+
+    let data:any[] = [];
+
+
+    if (Array.isArray(res)) {
+      data = res;
     }
-  };
+    else if (Array.isArray(res.data)) {
+      data = res.data;
+    }
+
+
+    if (search.trim() !== "") {
+
+      data = data.filter((item: Category) =>
+        item.name
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      );
+
+    }
+
+
+    setCategories(data);
+
+
+  } catch (err) {
+
+    console.log(err);
+
+    setCategories([]);
+
+  }
+};
+    
+  
 
   useEffect(() => {
     loadCategories();
@@ -202,7 +228,7 @@ export default function Categories() {
               </TableHead>
 
               <TableBody>
-                {categories.map((category) => (
+                {categories?.map((category) => (
                   <TableRow key={category.id}>
                     <TableCell>
                       {category.name}

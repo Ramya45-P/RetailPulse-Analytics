@@ -11,16 +11,11 @@ const getAuthHeader = () => ({
 
 
 // Get all products
-export const getProducts = async (companyId: number) => {
+export const getProducts = async (companyId:number) => {
 
   const response = await axios.get(
-    `${API_URL}/products/`,
-    {
-      params: {
-        company_id: companyId,
-      },
-      ...getAuthHeader(),
-    }
+    `${API_URL}/products/?company_id=${companyId}`,
+    getAuthHeader()
   );
 
   return response.data;

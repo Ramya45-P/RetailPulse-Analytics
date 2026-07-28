@@ -9,18 +9,28 @@ export interface Sale {
 
 
 export const getSales = async (companyId: number) => {
-  const response = await axios.get(`/sales/?company_id=${companyId}`);
+  const response = await axios.get(
+    `/sales/?company_id=${companyId}`
+  );
+
   return response.data;
 };
 
 
 export const createSale = async (data: any) => {
-  const response = await axios.post("/sales/", data);
+  const response = await axios.post(
+    "/sales/",
+    data
+  );
+
   return response.data;
 };
 
 
 export const deleteSale = async (id: number) => {
-  const response = await axios.delete(`/sales/${id}`);
+  const response = await axios.delete(
+    `/sales/${id}`
+  );
+
   return response.data;
 };
