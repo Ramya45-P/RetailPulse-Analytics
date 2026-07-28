@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from app.models.user import User
 from app.schemas.user_schema import UserCreate
@@ -41,17 +42,11 @@ def create_user(db: Session, user: UserCreate):
 
     return db_user
 
-
 def login_user(db: Session, email: str, password: str):
-
-    print("LOGIN EMAIL:", email)
-    print("LOGIN PASSWORD:", password)
 
     user = db.query(User).filter(
         User.email == email
     ).first()
-
-    print("USER FOUND:", user)
 
     if not user:
         return None
@@ -61,6 +56,11 @@ def login_user(db: Session, email: str, password: str):
         user.hashed_password
     ):
         return None
+
+    # Update last login time
+    user.last_login = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
 
     token = create_access_token(
         {
@@ -72,4 +72,6 @@ def login_user(db: Session, email: str, password: str):
     return {
         "access_token": token,
         "token_type": "bearer",
+        "user_id": user.id,
+        "company_id": user.company_id,
     }

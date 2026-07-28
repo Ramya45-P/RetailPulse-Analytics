@@ -108,11 +108,13 @@ def get_products(
 
 def delete_product(
     db: Session,
-    product_id: int
+    product_id: int,
+    company_id: int
 ):
 
     product = db.query(Product).filter(
-        Product.id == product_id
+        Product.id == product_id,
+        Product.company_id == company_id
     ).first()
 
     if not product:
@@ -130,11 +132,13 @@ def delete_product(
 def update_product(
     db: Session,
     product_id: int,
+    company_id: int,
     data: ProductCreate
 ):
 
     product = db.query(Product).filter(
-        Product.id == product_id
+        Product.id == product_id,
+        Product.company_id == company_id
     ).first()
 
     if not product:
@@ -158,15 +162,3 @@ def update_product(
     db.refresh(product)
 
     return product
-  
-    product = db.query(Product).filter(
-        Product.id == product_id
-    ).first()
-
-    if not product:
-        raise HTTPException(
-            status_code=404,
-            detail="Product not found"
-        )
-
-   

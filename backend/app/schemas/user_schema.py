@@ -25,3 +25,5 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str
+    user_id: int
+    company_id: int

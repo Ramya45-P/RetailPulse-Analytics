@@ -21,4 +21,7 @@ class User(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    # NEW
+    last_login = Column(DateTime, nullable=True)
+    
     company = relationship("Company")
