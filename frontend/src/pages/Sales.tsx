@@ -36,6 +36,7 @@ export default function Sales() {
     try {
 
       const data = await getSales(companyId);
+      console.log("Sales API Data:", data);
 
       setSales(data || []);
 

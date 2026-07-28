@@ -19,6 +19,7 @@ import Layout from "./components/Layout";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Reports from "./pages/Reports";
+import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 
 
 function App() {
@@ -95,6 +96,10 @@ function App() {
            path="/reports"
             element={<Reports />} 
             />
+          <Route
+          path="/analytics"
+          element={<AnalyticsDashboard />}
+/>  
 
         </Route>
 

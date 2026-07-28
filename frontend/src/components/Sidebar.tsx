@@ -59,7 +59,11 @@ export default function Sidebar() {
   icon: <AssessmentIcon />,
   path: "/reports",
 },
-
+  {
+  text: "Analytics",
+  icon: <BarChartIcon />,
+  path: "/analytics",
+},
   ];
 
 
@@ -172,8 +176,7 @@ export default function Sidebar() {
                 primary={item.text}
 
               />
-
-
+              
             </ListItemButton>
 
 
