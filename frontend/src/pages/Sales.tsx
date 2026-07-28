@@ -24,8 +24,7 @@ import SalesForm from "../components/SalesForm";
 
 export default function Sales() {
 
-  const companyId = 1;
-
+  const companyId = Number(localStorage.getItem("company_id"));
   const [sales, setSales] = useState<any[]>([]);
 
   const loadSales = async () => {

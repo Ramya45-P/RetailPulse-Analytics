@@ -5,22 +5,27 @@ import {
   Button,
   Card,
   CardContent,
-  Grid,
-  Paper,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
-  Typography,
-  Chip,
+  Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
-import InventoryIcon from "@mui/icons-material/Inventory";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import WarningIcon from "@mui/icons-material/Warning";
+import Sidebar from "../components/Sidebar";
+import { getCategories } from "../api/categoryApi";
 
 import {
   getProducts,
@@ -31,554 +36,330 @@ import {
 
 
 interface Product {
-
-  id:number;
-  name:string;
-  sku:string;
-  brand:string;
-  description:string;
-  category_id:number;
-  company_id:number;
-  unit_price:number;
-  cost_price:number;
-  stock_quantity:number;
-  unit_of_measure:string;
-  status:string;
-
+  id: number;
+  name: string;
+  sku: string;
+  category_id: number;
+  brand: string;
+  description: string;
+  unit_price: number;
+  cost_price: number;
+  stock_quantity: number;
+  unit_of_measure: string;
+  status: string;
+  company_id: number;
 }
 
 
+interface Category {
+  id: number;
+  name: string;
+}
 
-export default function Products(){
 
-const companyId = 1;
-
+const companyId = Number(localStorage.getItem("company_id"));
 
 const emptyForm = {
-
-name:"",
-sku:"",
-category_id:1,
-brand:"",
-description:"",
-unit_price:0,
-cost_price:0,
-stock_quantity:0,
-unit_of_measure:"Piece",
-status:"Active",
-company_id:companyId,
-
-};
-
-
-const [products,setProducts]=useState<Product[]>([]);
-const [search,setSearch]=useState("");
-
-const [form,setForm]=useState(emptyForm);
-
-const [editingId,setEditingId]=useState<number|null>(null);
-
-
-
-const loadProducts=async()=>{
-
-try{
-
-const res=await getProducts(companyId,{
-search
-});
-
-setProducts(res.data);
-
-}
-catch(error){
-
-console.log(error);
-
-}
-
+  name: "",
+  sku: "",
+  category_id: 0,
+  brand: "",
+  description: "",
+  unit_price: 0,
+  cost_price: 0,
+  stock_quantity: 0,
+  unit_of_measure: "Piece",
+  status: "Active",
+  company_id: companyId,
 };
 
 
 
-useEffect(()=>{
-
-loadProducts();
-
-},[]);
+function Products() {
 
 
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  const [open, setOpen] = useState(false);
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  const [form, setForm] = useState(emptyForm);
 
 
-const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
 
-const {name,value}=e.target;
+  const loadProducts = async () => {
 
+    try {
+
+      const data = await getProducts(companyId);
+
+      console.log("Products Data:", data);
+
+      setProducts(data);
+
+    } catch(error) {
+
+      console.log(error);
+
+    }
+
+  };
+
+
+
+  const loadCategories = async () => {
+
+    try {
+
+      const data = await getCategories(companyId);
+
+      console.log("Categories:", data);
+
+      setCategories(data);
+
+    } catch(error) {
+
+      console.log(error);
+
+    }
+
+  };
+
+
+
+  useEffect(()=>{
+
+    loadProducts();
+
+    loadCategories();
+
+  },[]);
+
+
+
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+
+    const { name, value } = e.target;
+
+
+    setForm({
+
+      ...form,
+
+      [name]:
+
+        name === "unit_price" ||
+        name === "cost_price" ||
+        name === "stock_quantity"
+
+        ? Number(value)
+
+        : value,
+
+
+      company_id: companyId,
+
+    });
+
+  };
+
+
+
+
+
+  const handleSave = async()=>{
+
+
+    try{
+
+
+      console.log("Sending Product:",form);
+
+
+      if(editingId === null){
+
+        await createProduct(form);
+
+      }
+
+      else{
+
+        await updateProduct(editingId,form);
+
+      }
+
+
+
+      setForm({
+
+        ...emptyForm,
+
+        company_id: companyId
+
+      });
+
+
+      setEditingId(null);
+
+      setOpen(false);
+
+
+      loadProducts();
+
+
+    }
+
+    catch(error){
+
+      console.log(error);
+
+    }
+
+
+  };
+ const handleEdit = (product:Product)=>{
+
+
+    setForm({
+
+      name: product.name,
+
+      sku: product.sku,
+
+      category_id: product.category_id,
+
+      brand: product.brand,
+
+      description: product.description,
+
+      unit_price: product.unit_price,
+
+      cost_price: product.cost_price,
+
+      stock_quantity: product.stock_quantity,
+
+      unit_of_measure: product.unit_of_measure,
+
+      status: product.status,
+
+      company_id: companyId,
+
+    });
+
+
+
+    setEditingId(product.id);
+
+    setOpen(true);
+
+
+  };
+
+
+
+
+
+  const handleDelete = async(id:number)=>{
+
+
+    try{
+
+      await deleteProduct(id);
+
+      loadProducts();
+
+    }
+
+    catch(error){
+
+      console.log(error);
+
+    }
+
+
+  };
+
+
+
+
+
+return (
+
+<Box sx={{display:"flex"}}>
+
+
+<Sidebar/>
+
+
+<Box sx={{flexGrow:1,p:3}}>
+
+
+<Typography variant="h4" mb={3}>
+
+Products
+
+</Typography>
+
+
+<Card>
+
+
+<CardContent>
+
+
+<Button
+
+variant="contained"
+
+onClick={()=>{
 
 setForm({
 
-...form,
+...emptyForm,
 
-[name]:
-
-name==="unit_price" ||
-name==="cost_price" ||
-name==="stock_quantity"
-
-?
-
-Number(value)
-
-:
-
-value
-
+company_id:companyId
 
 });
 
-};
-
-
-
-
-
-const handleSave=async()=>{
-
-try{
-
-
-if(editingId===null){
-
-await createProduct(form);
-
-}
-
-else{
-
-await updateProduct(editingId,form);
 
 setEditingId(null);
 
-}
+setOpen(true);
 
-
-setForm(emptyForm);
-
-loadProducts();
-
-
-}
-
-catch(error){
-
-console.log(error);
-
-}
-
-};
-
-
-
-
-
-
-const handleEdit=(product:Product)=>{
-
-
-setEditingId(product.id);
-
-
-setForm({
-
-name:product.name,
-sku:product.sku,
-category_id:product.category_id,
-brand:product.brand,
-description:product.description,
-unit_price:product.unit_price,
-cost_price:product.cost_price,
-stock_quantity:product.stock_quantity,
-unit_of_measure:product.unit_of_measure,
-status:product.status,
-company_id:product.company_id
-
-});
-
-
-};
-
-
-
-
-
-
-const handleDelete=async(id:number)=>{
-
-await deleteProduct(id);
-
-loadProducts();
-
-};
-
-
-
-
-
-return(
-
-<Box>
-
-
-<Typography
-variant="h4"
-fontWeight="bold"
-mb={3}
->
-Product Management
-</Typography>
-
-
-
-
-
-<Grid container spacing={3} mb={4}>
-
-
-<Grid size={{xs:12,md:4}}>
-
-<Card sx={{borderRadius:3,boxShadow:3}}>
-
-<CardContent>
-
-<InventoryIcon color="primary"/>
-
-<Typography>
-Total Products
-</Typography>
-
-
-<Typography
-variant="h4"
-fontWeight="bold"
->
-{products.length}
-</Typography>
-
-
-</CardContent>
-
-</Card>
-
-</Grid>
-
-
-
-
-
-<Grid size={{xs:12,md:4}}>
-
-<Card sx={{borderRadius:3,boxShadow:3}}>
-
-<CardContent>
-
-<CheckCircleIcon color="success"/>
-
-<Typography>
-Active Products
-</Typography>
-
-
-<Typography
-variant="h4"
-fontWeight="bold"
->
-
-{
-products.filter(
-p=>p.status==="Active"
-).length
-}
-
-</Typography>
-
-
-</CardContent>
-
-</Card>
-
-</Grid>
-
-
-
-
-
-<Grid size={{xs:12,md:4}}>
-
-<Card sx={{borderRadius:3,boxShadow:3}}>
-
-<CardContent>
-
-<WarningIcon color="warning"/>
-
-<Typography>
-Low Stock Products
-</Typography>
-
-
-<Typography
-variant="h4"
-fontWeight="bold"
->
-
-{
-products.filter(
-p=>p.stock_quantity<=10
-).length
-}
-
-</Typography>
-
-
-</CardContent>
-
-</Card>
-
-</Grid>
-
-
-
-</Grid>
-
-
-
-
-
-
-
-<Card
-sx={{
-mb:4,
-borderRadius:3,
-boxShadow:3
 }}
+
 >
 
-
-<CardContent>
-
-
-<Typography
-variant="h6"
-mb={3}
->
-
-{
-editingId
-?
-"Update Product"
-:
-"Add Product"
-}
-
-</Typography>
-
-
-
-<Grid container spacing={2}>
-
-
-<Grid size={{xs:12,md:6}}>
-
-<TextField
-fullWidth
-label="Product Name"
-name="name"
-value={form.name}
-onChange={handleChange}
-/>
-
-</Grid>
-
-
-
-<Grid size={{xs:12,md:6}}>
-
-<TextField
-fullWidth
-label="SKU"
-name="sku"
-value={form.sku}
-onChange={handleChange}
-/>
-
-</Grid>
-
-
-
-
-<Grid size={{xs:12,md:6}}>
-
-<TextField
-fullWidth
-label="Brand"
-name="brand"
-value={form.brand}
-onChange={handleChange}
-/>
-
-</Grid>
-
-
-
-
-<Grid size={{xs:12,md:6}}>
-
-<TextField
-fullWidth
-type="number"
-label="Stock Quantity"
-name="stock_quantity"
-value={form.stock_quantity}
-onChange={handleChange}
-/>
-
-</Grid>
-
-
-
-
-<Grid size={{xs:12}}>
-
-<Button
-variant="contained"
-onClick={handleSave}
->
-
-{
-editingId
-?
-"Update Product"
-:
-"Add Product"
-}
+Add Product
 
 </Button>
-
-
-</Grid>
-
-
-</Grid>
-
-
-</CardContent>
-
-</Card>
-
-
-
-
-
-
-
-<Card
-sx={{
-mb:3,
-borderRadius:3,
-boxShadow:3
-}}
->
-
-<CardContent>
-
-
-<TextField
-
-fullWidth
-
-label="Search Name / SKU / Brand"
-
-value={search}
-
-onChange={(e)=>setSearch(e.target.value)}
-
-onKeyDown={(e)=>{
-
-if(e.key==="Enter")
-loadProducts();
-
-}}
-
-/>
-
-
-</CardContent>
-
-
-</Card>
-
-
-
-
-
-
-
-<TableContainer
-component={Paper}
-sx={{
-borderRadius:3,
-boxShadow:3
-}}
->
+<TableContainer component={Paper} sx={{mt:3}}>
 
 
 <Table>
 
 
-<TableHead
-sx={{
-backgroundColor:"#1976d2"
-}}
->
+<TableHead>
 
 
 <TableRow>
 
+<TableCell>Name</TableCell>
 
-<TableCell sx={{color:"white"}}>
-Name
-</TableCell>
+<TableCell>SKU</TableCell>
 
+<TableCell>Brand</TableCell>
 
-<TableCell sx={{color:"white"}}>
-SKU
-</TableCell>
+<TableCell>Price</TableCell>
 
+<TableCell>Stock</TableCell>
 
-<TableCell sx={{color:"white"}}>
-Brand
-</TableCell>
-
-
-<TableCell sx={{color:"white"}}>
-Price
-</TableCell>
-
-
-<TableCell sx={{color:"white"}}>
-Stock
-</TableCell>
-
-
-<TableCell sx={{color:"white"}}>
-Status
-</TableCell>
-
-
-<TableCell sx={{color:"white"}}>
-Action
-</TableCell>
-
+<TableCell>Actions</TableCell>
 
 
 </TableRow>
@@ -588,111 +369,288 @@ Action
 
 
 
-
-
 <TableBody>
 
 
 {
-products.map(product=>(
+
+products.map((product)=>(
+<TableRow key={product.id}>
 
 
-<TableRow
-hover
-key={product.id}
->
-
-
+<TableCell>{product.name}</TableCell>
+<TableCell>{product.sku}</TableCell>
+<TableCell>{product.brand}</TableCell>
 <TableCell>
-{product.name}
-</TableCell>
 
-
-<TableCell>
-{product.sku}
-</TableCell>
-
-
-<TableCell>
-{product.brand}
-</TableCell>
-
-
-<TableCell>
 ₹ {product.unit_price}
+
 </TableCell>
 
 
 <TableCell>
+
 {product.stock_quantity}
+
 </TableCell>
 
 
 <TableCell>
 
-<Chip
 
-label={product.status}
+<Button onClick={()=>handleEdit(product)}>
 
-color={
-product.status==="Active"
-?
-"success"
-:
-"default"
-}
-
-/>
-
-</TableCell>
-
-
-
-<TableCell>
-
-
-<Button
-size="small"
-variant="contained"
-sx={{mr:1}}
-onClick={()=>handleEdit(product)}
->
 Edit
+
 </Button>
-
-
-
 <Button
-size="small"
+
 color="error"
-variant="contained"
+
 onClick={()=>handleDelete(product.id)}
+
 >
-Delete
+  Delete
+
 </Button>
 
 
 </TableCell>
-
-
 </TableRow>
 
 
 ))
+
+}
+
+</TableBody>
+</Table>
+</TableContainer>
+</CardContent>
+
+
+</Card>
+<Dialog
+
+open={open}
+
+onClose={()=>setOpen(false)}
+
+>
+
+
+<DialogTitle>
+
+{
+
+editingId
+
+? "Edit Product"
+
+: "Add Product"
+
+}
+
+</DialogTitle>
+
+<DialogContent>
+
+<TextField
+
+margin="dense"
+
+label="Name"
+
+name="name"
+
+fullWidth
+
+value={form.name}
+
+onChange={handleChange}
+
+/>
+<TextField
+
+margin="dense"
+
+label="SKU"
+
+name="sku"
+
+fullWidth
+
+value={form.sku}
+
+onChange={handleChange}
+
+/>
+
+<FormControl fullWidth margin="dense">
+
+
+<InputLabel>
+
+Category
+
+</InputLabel>
+
+<Select
+
+name="category_id"
+
+value={form.category_id}
+
+label="Category"
+
+onChange={(e)=>
+
+setForm({
+
+...form,
+
+category_id:Number(e.target.value)
+
+})
+
 }
 
 
+>
 
 
+{
 
-</TableBody>
-
-
-</Table>
+categories.map((category)=>(
 
 
-</TableContainer>
+<MenuItem
 
+key={category.id}
+
+value={category.id}
+
+>
+
+{category.name}
+
+
+</MenuItem>
+
+
+))
+
+}
+</Select>
+</FormControl>
+
+<TextField
+
+margin="dense"
+
+label="Brand"
+
+name="brand"
+
+fullWidth
+
+value={form.brand}
+
+onChange={handleChange}
+
+/>
+<TextField
+
+margin="dense"
+
+label="Description"
+
+name="description"
+
+fullWidth
+
+value={form.description}
+
+onChange={handleChange}
+
+/>
+
+<TextField
+
+margin="dense"
+
+label="Unit Price"
+
+name="unit_price"
+
+type="number"
+
+fullWidth
+
+value={form.unit_price}
+
+onChange={handleChange}
+
+/>
+
+<TextField
+
+margin="dense"
+
+label="Cost Price"
+
+name="cost_price"
+
+type="number"
+
+fullWidth
+
+value={form.cost_price}
+
+onChange={handleChange}
+
+/>
+<TextField
+
+margin="dense"
+
+label="Stock Quantity"
+
+name="stock_quantity"
+
+type="number"
+
+fullWidth
+
+value={form.stock_quantity}
+
+onChange={handleChange}
+
+/>
+</DialogContent>
+
+<DialogActions>
+
+
+<Button onClick={()=>setOpen(false)}>
+
+Cancel
+
+</Button>
+<Button
+
+variant="contained"
+
+onClick={handleSave}
+
+>
+
+Save
+
+</Button>
+</DialogActions>
+</Dialog>
+</Box>
 
 
 </Box>
@@ -702,3 +660,5 @@ Delete
 
 
 }
+
+export default Products;

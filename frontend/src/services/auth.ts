@@ -61,12 +61,20 @@ export const loginUser = async (
     }
   );
 
+localStorage.setItem(
+  "access_token",
+  response.data.access_token
+);
 
-  localStorage.setItem(
-    "access_token",
-    response.data.access_token
-  );
+localStorage.setItem(
+  "company_id",
+  response.data.company_id.toString()
+);
 
+localStorage.setItem(
+  "user_id",
+  response.data.user_id.toString()
+);
 
-  return response.data;
-};
+return response.data;
+}

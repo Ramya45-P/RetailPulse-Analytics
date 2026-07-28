@@ -33,8 +33,7 @@ interface Category {
 }
 
 export default function Categories() {
-  const companyId = 1;
-
+ const companyId = Number(localStorage.getItem("company_id"));
   const emptyForm = {
     name: "",
     description: "",
