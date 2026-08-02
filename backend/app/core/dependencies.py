@@ -12,10 +12,11 @@ def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ):
-    
+    print("TOKEN:", token)
 
     payload = verify_access_token(token)
-    
+    print("PAYLOAD:", payload)
+
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -23,10 +24,10 @@ def get_current_user(
         )
 
     email = payload.get("sub")
-    
+    print("EMAIL:", email)
 
     user = db.query(User).filter(User.email == email).first()
-    
+    print("USER:", user)
 
     if user is None:
         raise HTTPException(

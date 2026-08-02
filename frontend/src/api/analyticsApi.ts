@@ -1,12 +1,10 @@
-import axios from "./axios";
+import api from "./axios";
 
+export const getAnalyticsDashboard = async () => {
+  const token = localStorage.getItem("access_token");
+  console.log("Token:", token);
 
-export const getAnalyticsDashboard = async(companyId:number)=>{
+  const response = await api.get("/analytics/dashboard");
 
-    const response = await axios.get(
-        `/analytics/dashboard?company_id=${companyId}`
-    );
-
-    return response.data;
-
+  return response.data;
 };

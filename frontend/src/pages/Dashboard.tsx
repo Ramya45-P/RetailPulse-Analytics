@@ -19,6 +19,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 import { getDashboardStats } from "../api/dashboardApi";
+import { getAnalyticsDashboard } from "../api/analyticsApi";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -37,64 +38,79 @@ export default function Dashboard() {
   }, []);
 
   const loadStats = async () => {
-    try {
-      const data = await getDashboardStats();
-      setStats(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  try {
+    const dashboardData = await getDashboardStats();
+    setStats(dashboardData);
 
-  const cards = [
-    {
-      title: "Total Units Sold",
-      value: stats.totalUnitsSold,
-      color: "#1976d2",
-      icon: <LocalShippingIcon sx={{ fontSize: 38 }} />,
-    },
-    {
-      title: "Revenue",
-      value: `₹ ${Number(stats.totalRevenue).toLocaleString()}`,
-      color: "#2e7d32",
-      icon: <CurrencyRupeeIcon sx={{ fontSize: 38 }} />,
-    },
-    {
-      title: "Orders",
-      value: stats.totalOrders,
-      color: "#ed6c02",
-      icon: <ShoppingCartIcon sx={{ fontSize: 38 }} />,
-    },
-    {
-      title: "Average Order",
-      value: `₹ ${Number(stats.averageOrderValue).toFixed(2)}`,
-      color: "#6a1b9a",
-      icon: <TrendingUpIcon sx={{ fontSize: 38 }} />,
-    },
-    {
-      title: "Products",
-      value: stats.totalProducts,
-      color: "#00838f",
-      icon: <InventoryIcon sx={{ fontSize: 38 }} />,
-    },
-    {
-      title: "Active Products",
-      value: stats.activeProducts,
-      color: "#43a047",
-      icon: <CheckCircleIcon sx={{ fontSize: 38 }} />,
-    },
-    {
-      title: "Inactive Products",
-      value: stats.inactiveProducts,
-      color: "#d32f2f",
-      icon: <CancelIcon sx={{ fontSize: 38 }} />,
-    },
-    {
-      title: "Categories",
-      value: stats.totalCategories,
-      color: "#5e35b1",
-      icon: <CategoryIcon sx={{ fontSize: 38 }} />,
-    },
-  ];
+    const analyticsData = await getAnalyticsDashboard();
+    setAnalytics(analyticsData);
+  } catch (error) {
+    console.log(error);
+  }
+};
+const [analytics, setAnalytics] = useState<any>({
+  total_revenue: 0,
+  total_orders: 0,
+  total_products_sold: 0,
+  average_order_value: 0,
+  total_inventory_value: 0,
+  low_stock_products: 0,
+  out_of_stock_products: 0,
+  total_categories: 0,
+  top_products: [],
+});
+  
+ const cards = [
+  {
+    title: "Total Revenue",
+    value: `₹ ${Number(analytics.total_revenue).toLocaleString("en-IN")}`,
+    color: "#2e7d32",
+    icon: <CurrencyRupeeIcon sx={{ fontSize: 38 }} />,
+  },
+  {
+    title: "Total Orders",
+    value: analytics.total_orders,
+    color: "#ed6c02",
+    icon: <ShoppingCartIcon sx={{ fontSize: 38 }} />,
+  },
+  {
+    title: "Products Sold",
+    value: analytics.total_products_sold,
+    color: "#1976d2",
+    icon: <LocalShippingIcon sx={{ fontSize: 38 }} />,
+  },
+  {
+    title: "Average Order",
+    value: `₹ ${Number(analytics.average_order_value).toLocaleString("en-IN")}`,
+    color: "#6a1b9a",
+    icon: <TrendingUpIcon sx={{ fontSize: 38 }} />,
+  },
+  {
+    title: "Inventory Value",
+    value: `₹ ${Number(analytics.total_inventory_value).toLocaleString("en-IN")}`,
+    color: "#00838f",
+    icon: <InventoryIcon sx={{ fontSize: 38 }} />,
+  },
+  {
+    title: "Low Stock",
+    value: analytics.low_stock_products,
+    color: "#f57c00",
+    icon: <InventoryIcon sx={{ fontSize: 38 }} />,
+  },
+  {
+    title: "Out Of Stock",
+    value: analytics.out_of_stock_products,
+    color: "#d32f2f",
+    icon: <CancelIcon sx={{ fontSize: 38 }} />,
+  },
+  {
+    title: "Categories",
+    value: analytics.total_categories,
+    color: "#5e35b1",
+    icon: <CategoryIcon sx={{ fontSize: 38 }} />,
+  },
+]; 
+     
 
   return (
     <Box
@@ -176,38 +192,59 @@ export default function Dashboard() {
           >
             <CardContent>
               <Typography
-                variant="h6"
-                sx={{ fontWeight: "bold" }}
-                mb={3}
-              >
-                Business Summary
-              </Typography>
+    variant="h6"
+    sx={{ fontWeight: "bold" }}
+    mb={3}
+  >
+    Business Summary
+  </Typography>
 
-              <Typography mb={1}>
-                📦 Total Products : <strong>{stats.totalProducts}</strong>
-              </Typography>
+  <Typography mb={1}>
+    💰 Revenue :
+    <strong>
+      ₹ {Number(analytics.total_revenue).toLocaleString("en-IN")}
+    </strong>
+  </Typography>
 
-              <Typography mb={1}>
-                📂 Categories : <strong>{stats.totalCategories}</strong>
-              </Typography>
+<Typography mb={1}>
+  🛒 Orders :
+  <strong>{analytics.total_orders}</strong>
+</Typography>
 
-              <Typography mb={1}>
-                🛒 Orders : <strong>{stats.totalOrders}</strong>
-              </Typography>
+<Typography mb={1}>
+  📦 Products Sold :
+  <strong>{analytics.total_products_sold}</strong>
+</Typography>
 
-              <Typography mb={1}>
-                💰 Revenue :{" "}
-                <strong>₹ {Number(stats.totalRevenue).toLocaleString()}</strong>
-              </Typography>
+<Typography mb={1}>
+  📊 Average Order :
+  <strong>
+    ₹ {Number(analytics.average_order_value).toLocaleString("en-IN")}
+  </strong>
+</Typography>
 
-              <Typography mb={1}>
-                🚚 Units Sold : <strong>{stats.totalUnitsSold}</strong>
-              </Typography>
+<Typography mb={1}>
+  📂 Categories :
+  <strong>{analytics.total_categories}</strong>
+</Typography>
 
-              <Typography>
-                📊 Average Order :{" "}
-                <strong>₹ {Number(stats.averageOrderValue).toFixed(2)}</strong>
-              </Typography>
+<Typography mb={1}>
+  📦 Inventory Value :
+  <strong>
+    ₹ {Number(analytics.total_inventory_value).toLocaleString("en-IN")}
+  </strong>
+</Typography>
+
+<Typography mb={1}>
+  ⚠ Low Stock :
+  <strong>{analytics.low_stock_products}</strong>
+</Typography>
+
+<Typography>
+  ❌ Out Of Stock :
+  <strong>{analytics.out_of_stock_products}</strong>
+</Typography>
+               
             </CardContent>
           </Card>
         </Grid>
@@ -249,6 +286,60 @@ export default function Dashboard() {
           </Card>
         </Grid>
       </Grid>
+      <Grid container spacing={3} mt={4}>
+  <Grid item xs={12}>
+    <Card
+      sx={{
+        borderRadius: 4,
+        boxShadow: 4,
+      }}
+    >
+      <CardContent>
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          mb={3}
+        >
+          Top Selling Products
+        </Typography>
+
+        {analytics.top_products?.length > 0 ? (
+          analytics.top_products.map(
+            (product: any, index: number) => (
+              <Box
+                key={index}
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{
+                  py: 1.5,
+                  borderBottom:
+                    index !==
+                    analytics.top_products.length - 1
+                      ? "1px solid #eee"
+                      : "none",
+                }}
+              >
+                <Typography fontWeight={500}>
+                  {index + 1}. {product.product}
+                </Typography>
+
+                <Chip
+                  color="primary"
+                  label={`${product.quantity} Sold`}
+                />
+              </Box>
+            )
+          )
+        ) : (
+          <Typography color="text.secondary">
+            No product sales available.
+          </Typography>
+        )}
+      </CardContent>
+    </Card>
+  </Grid>
+</Grid>
     </Box>
   );
 }

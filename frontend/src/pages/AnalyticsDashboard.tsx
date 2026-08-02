@@ -13,10 +13,6 @@ import { getAnalyticsDashboard } from "../api/analyticsApi";
 
 export default function AnalyticsDashboard() {
 
-  const companyId = Number(
-    localStorage.getItem("company_id")
-  );
-
   const [kpis, setKpis] = useState<any>({});
 
 
@@ -24,9 +20,9 @@ export default function AnalyticsDashboard() {
 
     try {
 
-      const data = await getAnalyticsDashboard(companyId);
+      const data = await getAnalyticsDashboard();
 
-      setKpis(data.kpis);
+      setKpis(data);
 
     } catch(error){
 
@@ -43,45 +39,40 @@ export default function AnalyticsDashboard() {
 
   },[]);
 
-
-
   const cards = [
-    {
-      title:"Total Revenue",
-      value:`₹ ${kpis.total_revenue || 0}`
-    },
-    {
-      title:"Total Orders",
-      value:kpis.total_orders || 0
-    },
-    {
-      title:"Products Sold",
-      value:kpis.total_products_sold || 0
-    },
-    {
-      title:"Average Order Value",
-      value:`₹ ${kpis.average_order_value || 0}`
-    },
-    {
-      title:"Inventory Value",
-      value:`₹ ${kpis.total_inventory_value || 0}`
-    },
-    {
-      title:"Low Stock Products",
-      value:kpis.low_stock_products || 0
-    },
-    {
-      title:"Out Of Stock",
-      value:kpis.out_of_stock_products || 0
-    },
-    {
-      title:"Categories",
-      value:kpis.total_categories || 0
-    }
-  ];
-
-
-
+  {
+    title: "Total Revenue",
+    value: `₹${(kpis?.total_revenue ?? 0).toLocaleString()}`
+  },
+  {
+    title: "Total Orders",
+    value: kpis?.total_orders ?? 0
+  },
+  {
+    title: "Products Sold",
+    value: kpis?.total_products_sold ?? 0
+  },
+  {
+    title: "Average Order Value",
+    value: `₹${kpis?.average_order_value ?? 0}`
+  },
+  {
+    title: "Inventory Value",
+    value: `₹${(kpis?.total_inventory_value ?? 0).toLocaleString()}`
+  },
+  {
+    title: "Low Stock Products",
+    value: kpis?.low_stock_products ?? 0
+  },
+  {
+    title: "Out Of Stock Products",
+    value: kpis?.out_of_stock_products ?? 0
+  },
+  {
+    title: "Categories",
+    value: kpis?.total_categories ?? 0
+  }
+];
   return (
 
     <Box sx={{p:4}}>
