@@ -20,6 +20,7 @@ import Layout from "./components/Layout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Reports from "./pages/Reports";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
+import Customers from "./pages/Customers";
 
 
 function App() {
@@ -100,6 +101,10 @@ function App() {
           path="/analytics"
           element={<AnalyticsDashboard />}
 />  
+          <Route
+            path="/customers"
+            element={<Customers />}
+          />
 
         </Route>
 

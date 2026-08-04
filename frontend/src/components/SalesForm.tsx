@@ -1,45 +1,126 @@
 import { useEffect, useState } from "react";
 
 import {
+  Box,
   Button,
   TextField,
-  Box,
-  MenuItem,
   Typography,
+  MenuItem,
 } from "@mui/material";
 
 import { getProducts } from "../api/productApi";
 import { createSale } from "../api/saleApi";
+import api from "../api/axios";
 
 
-const SalesForm = ({ refresh }: { refresh: () => void }) => {
-
-  const companyId = Number(localStorage.getItem("company_id")) || 1;
-
-  const [products, setProducts] = useState<any[]>([]);
+interface SalesFormProps {
+  refresh: () => void;
+}
 
 
-  const initialForm = {
-    company_id: companyId,
-    customer_name: "",
-    product_id: "",
-    category_id: 0,
-    quantity: 1,
-    unit_price: 0,
-    discount: 0,
-    tax: 0,
-    sales_channel: "Retail Store",
-    payment_method: "Cash",
-  };
+interface Product {
+  id: number;
+  name: string;
+  unit_price: number;
+  category_id: number;
+}
 
 
-  const [form, setForm] = useState(initialForm);
+interface Customer {
+  id: number;
+  full_name: string;
+}
+
+
+
+const SalesForm = ({ refresh }: SalesFormProps) => {
+
+
+  const companyId =
+    Number(localStorage.getItem("company_id"));
+
+
+
+  const [products, setProducts] =
+    useState<Product[]>([]);
+
+
+
+  const [customers, setCustomers] =
+    useState<Customer[]>([]);
+
+
+
+  const [customerId, setCustomerId] =
+    useState<number | null>(null);
+
+
+
+  const [productId, setProductId] =
+    useState<number | null>(null);
+
+
+
+  const [unitPrice, setUnitPrice] =
+    useState("");
+
+
+
+  const [quantity, setQuantity] =
+    useState("1");
+
+
+
+  const [discount, setDiscount] =
+    useState("0");
+
+
+
+  const [tax, setTax] =
+    useState("0");
+
+
+
+  const [salesChannel, setSalesChannel] =
+    useState("Online");
+
+
+
+  const [paymentMethod, setPaymentMethod] =
+    useState("Cash");
+
+
+
+  const [totalAmount, setTotalAmount] =
+    useState(0);
+
 
 
 
   useEffect(() => {
+
     loadProducts();
+
+    loadCustomers();
+
   }, []);
+
+
+
+
+
+  useEffect(() => {
+
+    calculateTotal();
+
+  }, [
+    unitPrice,
+    quantity,
+    discount,
+    tax
+  ]);
+
+
 
 
 
@@ -47,55 +128,19 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
     try {
 
-      const response = await getProducts(companyId);
+     const response =
+  await getProducts(companyId);
 
-      console.log("Products Response:", response);
+console.log("Products:", response);
 
+setProducts(response || []); 
 
-      let productList:any[] = [];
+    } catch(error) {
 
-
-      if(Array.isArray(response)){
-        productList = response;
-      }
-      else if(Array.isArray(response.data)){
-        productList = response.data;
-      }
-      else if(response.data?.products){
-        productList = response.data.products;
-      }
-
-
-      console.log("Product List:", productList);
-
-
-      setProducts(productList);
-
-
-
-      if(productList.length > 0){
-
-        setForm((prev)=>({
-
-          ...prev,
-
-          product_id: productList[0].id,
-
-          category_id: productList[0].category_id,
-
-          unit_price: productList[0].unit_price,
-
-        }));
-
-      }
-
-
-    }
-    catch(error){
-
-      console.log("Loading products failed:",error);
-
-      setProducts([]);
+      console.error(
+        "Product loading error",
+        error
+      );
 
     }
 
@@ -104,25 +149,30 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
 
 
-  const handleChange=(e:any)=>{
-
-    const {name,value}=e.target;
 
 
-    setForm({
 
-      ...form,
+  const loadCustomers = async () => {
+
+    try {
+
+      const response =
+        await api.get("/customers/");
 
 
-      [name]:
+      setCustomers(
+        response.data || []
+      );
 
-      ["quantity","discount","tax"].includes(name)
 
-      ? Number(value)
+    } catch(error) {
 
-      : value
+      console.error(
+        "Customer loading error",
+        error
+      );
 
-    });
+    }
 
   };
 
@@ -130,110 +180,158 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
 
 
-  const handleProductChange=(e:any)=>{
 
 
-    const selected = products.find(
+  const calculateTotal = () => {
 
-      (p)=>p.id===Number(e.target.value)
 
+    const price =
+      Number(unitPrice) || 0;
+
+
+    const qty =
+      Number(quantity) || 0;
+
+
+    const discountValue =
+      Number(discount) || 0;
+
+
+    const taxValue =
+      Number(tax) || 0;
+
+
+
+    const total =
+      (price * qty)
+      - discountValue
+      + taxValue;
+
+
+
+    setTotalAmount(
+      total > 0 ? total : 0
     );
 
-
-    if(!selected) return;
-
-
-
-    setForm((prev)=>({
-
-      ...prev,
-
-      product_id:selected.id,
-
-      category_id:selected.category_id,
-
-      unit_price:selected.unit_price,
-
-    }));
-
   };
 
+const submitSale = async () => {
+
+
+    try {
+
+
+      const selectedCustomer =
+        customers.find(
+          (customer) =>
+            customer.id === customerId
+        );
+
+
+
+      const selectedProduct =
+        products.find(
+          (product) =>
+            product.id === productId
+        );
+
+
+
+      const saleData = {
+
+
+        company_id: companyId,
+
+
+        customer_id: customerId,
+
+
+        customer_name:
+          selectedCustomer?.full_name || "",
+
+
+
+        product_id: productId,
+
+
+        category_id:
+          selectedProduct?.category_id || 0,
+
+
+
+        quantity:
+          Number(quantity),
+
+
+
+        unit_price:
+          Number(unitPrice),
+
+
+
+        discount:
+          Number(discount),
+
+
+
+        tax:
+          Number(tax),
+
+
+
+        sales_channel:
+          salesChannel,
+
+
+
+        payment_method:
+          paymentMethod
+
+      };
 
 
 
 
-  const totalAmount =
-
-    Number(form.quantity) *
-
-    Number(form.unit_price)
-
-    -
-
-    Number(form.discount)
-
-    +
-
-    Number(form.tax);
+      console.log(
+        "Sending Sale:",
+        saleData
+      );
 
 
 
-
-
-  const submitSale = async()=>{
-
-
-    try{
-
-
-      await createSale({
-
-        ...form,
-
-        product_id:Number(form.product_id),
-
-        quantity:Number(form.quantity),
-
-        unit_price:Number(form.unit_price),
-
-        discount:Number(form.discount),
-
-        tax:Number(form.tax),
-
-      });
+      await createSale(
+        saleData
+      );
 
 
 
-      alert("Sale Added Successfully");
+      alert(
+        "Sale created successfully"
+      );
 
 
-      setForm({
 
-        ...initialForm,
-
-        product_id: products.length ? products[0].id : "",
-
-        category_id: products.length ? products[0].category_id : 0,
-
-        unit_price: products.length ? products[0].unit_price : 0,
-
-      });
-
+      resetForm();
 
 
       refresh();
 
 
+
+    } catch(error) {
+
+
+      console.error(
+        "Sale creation failed",
+        error
+      );
+
+
+      alert(
+        "Failed to create sale"
+      );
+
     }
-
-    catch(error){
-
-      console.error(error);
-
-      alert("Failed to add sale");
-
-    }
-
 
   };
 
@@ -241,328 +339,379 @@ const SalesForm = ({ refresh }: { refresh: () => void }) => {
 
 
 
-  return (
 
-<Box
 
-sx={{
 
-mb:4,
+  const resetForm = () => {
 
-display:"flex",
 
-flexDirection:"column",
+    setCustomerId(null);
 
-gap:2,
+    setProductId(null);
 
-maxWidth:450,
+    setUnitPrice("");
 
-}}
+    setQuantity("1");
 
+    setDiscount("0");
+
+    setTax("0");
+
+    setSalesChannel("Online");
+
+    setPaymentMethod("Cash");
+
+    setTotalAmount(0);
+
+  };
+    return (
+
+    <Box>
+
+      <Typography
+        variant="h6"
+        sx={{ mb: 2 }}
+      >
+        Add Sale Transaction
+      </Typography>
+      {/* CUSTOMER */}
+      <TextField
+  select
+  fullWidth
+  label="Customer"
+  value={customerId ?? ""}
+  onChange={(e) => setCustomerId(Number(e.target.value))}
+  sx={{ mb: 2 }}
 >
+  {customers.map((customer) => (
+    <MenuItem key={customer.id} value={customer.id}>
+      {customer.full_name}
+    </MenuItem>
+  ))}
+</TextField>
 
 
-
-<Typography
-
-variant="h6"
-
-fontWeight="bold"
-
->
-
-Add Sale Transaction
-
-</Typography>
-
-
-
-
-
+{/* PRODUCT */}
 <TextField
+  select
+  fullWidth
+  label="Product"
+  value={productId ?? ""}
+  onChange={(e) => {
+    const id = Number(e.target.value);
 
-label="Customer Name"
+    setProductId(id);
 
-name="customer_name"
+    const selected = products.find((p) => p.id === id);
 
-value={form.customer_name}
-
-onChange={handleChange}
-
-fullWidth
-
-/>
-
-
-
-
-
-<TextField
-
-select
-
-label="Product"
-
-value={form.product_id}
-
-onChange={handleProductChange}
-
-fullWidth
-
+    if (selected) {
+      setUnitPrice(String(selected.unit_price));
+    }
+  }}
+  sx={{ mb: 2 }}
 >
-
-
-{
-
-products.length > 0 ? (
-
-products.map((product)=>(
-
-<MenuItem
-
-key={product.id}
-
-value={product.id}
-
->
-
-{product.name}
-
-</MenuItem>
-
-))
-
-)
-
-:(
-
-<MenuItem disabled>
-
-No Products Available
-
-</MenuItem>
-
-)
-
-}
-
-
+  {products.map((product) => (
+    <MenuItem key={product.id} value={product.id}>
+      {product.name}
+    </MenuItem>
+  ))}
 </TextField>
 
 
 
+ <TextField
 
+        fullWidth
 
-<TextField
+        label="Unit Price"
 
-label="Unit Price"
+        type="number"
 
-value={form.unit_price}
+        value={unitPrice}
 
-InputProps={{
 
-readOnly:true
+        onChange={(e) =>
 
-}}
+          setUnitPrice(
+            e.target.value
+          )
 
-fullWidth
+        }
 
-/>
 
+        sx={{ mb: 2 }}
 
+      />
 
 
 
-<TextField
 
-label="Quantity"
 
-name="quantity"
 
-type="number"
 
-value={form.quantity}
+      <TextField
 
-onChange={handleChange}
+        fullWidth
 
-fullWidth
+        label="Quantity"
 
-/>
+        type="number"
 
+        value={quantity}
 
 
+        onChange={(e) =>
 
+          setQuantity(
+            e.target.value
+          )
 
-<TextField
+        }
 
-label="Discount"
 
-name="discount"
+        sx={{ mb: 2 }}
 
-type="number"
+      />
 
-value={form.discount}
 
-onChange={handleChange}
 
-fullWidth
 
-/>
 
 
 
+      <TextField
 
+        fullWidth
 
-<TextField
+        label="Discount"
 
-label="Tax"
+        type="number"
 
-name="tax"
+        value={discount}
 
-type="number"
 
-value={form.tax}
+        onChange={(e) =>
 
-onChange={handleChange}
+          setDiscount(
+            e.target.value
+          )
 
-fullWidth
+        }
 
-/>
 
+        sx={{ mb: 2 }}
 
+      />
 
 
 
-<TextField
 
-select
 
-label="Sales Channel"
 
-name="sales_channel"
 
-value={form.sales_channel}
+      <TextField
 
-onChange={handleChange}
+        fullWidth
 
-fullWidth
+        label="Tax"
 
->
+        type="number"
 
+        value={tax}
 
-<MenuItem value="Retail Store">
 
-Retail Store
+        onChange={(e) =>
 
-</MenuItem>
+          setTax(
+            e.target.value
+          )
 
+        }
 
-<MenuItem value="Online Store">
 
-Online Store
+        sx={{ mb: 2 }}
 
-</MenuItem>
+      />
 
 
-<MenuItem value="Marketplace">
 
-Marketplace
 
-</MenuItem>
 
 
-</TextField>
 
+      <TextField
 
+        select
 
+        fullWidth
 
+        label="Sales Channel"
 
-<TextField
 
-select
+        value={salesChannel}
 
-label="Payment Method"
 
-name="payment_method"
+        onChange={(e) =>
 
-value={form.payment_method}
+          setSalesChannel(
+            e.target.value
+          )
 
-onChange={handleChange}
+        }
 
-fullWidth
 
->
+        sx={{ mb: 2 }}
 
+      >
 
-<MenuItem value="Cash">
+        <MenuItem value="Online">
+          Online
+        </MenuItem>
 
-Cash
 
-</MenuItem>
+        <MenuItem value="Store">
+          Store
+        </MenuItem>
 
 
-<MenuItem value="Card">
+        <MenuItem value="Mobile">
+          Mobile
+        </MenuItem>
 
-Card
 
-</MenuItem>
+      </TextField>
 
 
-<MenuItem value="UPI">
 
-UPI
 
-</MenuItem>
 
 
-<MenuItem value="Bank Transfer">
 
-Bank Transfer
+      <TextField
 
-</MenuItem>
+        select
 
+        fullWidth
 
-</TextField>
+        label="Payment Method"
 
 
+        value={paymentMethod}
 
 
+        onChange={(e) =>
 
-<Typography
+          setPaymentMethod(
+            e.target.value
+          )
 
-variant="h6"
+        }
 
-color="primary"
 
->
+        sx={{ mb: 2 }}
 
-Total Amount: ₹ {totalAmount.toFixed(2)}
+      >
 
-</Typography>
+        <MenuItem value="Cash">
+          Cash
+        </MenuItem>
 
 
+        <MenuItem value="UPI">
+          UPI
+        </MenuItem>
 
 
+        <MenuItem value="Card">
+          Card
+        </MenuItem>
 
-<Button
 
-variant="contained"
+        <MenuItem value="Online">
+          Online
+        </MenuItem>
 
-color="primary"
 
-onClick={submitSale}
+      </TextField>
 
-disabled={products.length===0}
 
->
 
-Add Sale
 
-</Button>
 
 
 
-</Box>
+
+      <Typography
+        variant="h6"
+        sx={{ mb: 2 }}
+      >
+
+        Total Amount: ₹
+        {totalAmount.toLocaleString()}
+
+      </Typography>
+
+
+
+
+
+
+
+
+      <Box
+
+        sx={{
+
+          display: "flex",
+
+          gap: 2
+
+        }}
+
+      >
+
+
+        <Button
+
+          variant="contained"
+
+          onClick={submitSale}
+
+
+          disabled={
+            !customerId ||
+            !productId
+          }
+
+        >
+
+          Submit Sale
+
+        </Button>
+
+
+
+
+
+        <Button
+
+          variant="outlined"
+
+          onClick={resetForm}
+
+        >
+
+          Reset
+
+        </Button>
+
+
+
+      </Box>
+
+
+
+    </Box>
 
   );
 

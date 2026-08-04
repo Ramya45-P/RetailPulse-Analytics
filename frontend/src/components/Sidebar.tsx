@@ -18,6 +18,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 
 import { Link, useLocation } from "react-router-dom";
+import PeopleIcon from "@mui/icons-material/People";
 
 
 const drawerWidth = 240;
@@ -54,6 +55,11 @@ export default function Sidebar() {
       icon: <BarChartIcon />,
       path: "/inventory",
     },
+     {
+      text: "Customers",
+      icon: <PeopleIcon />,
+      path: "/customers",
+    },
     {
   text: "Reports",
   icon: <AssessmentIcon />,
@@ -64,6 +70,7 @@ export default function Sidebar() {
   icon: <BarChartIcon />,
   path: "/analytics",
 },
+    
   ];
 
 
