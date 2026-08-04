@@ -8,11 +8,7 @@ from app.database.database import Base
 class Sale(Base):
     __tablename__ = "sales"
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        index=True
-    )
+    id = Column(Integer, primary_key=True, index=True)
 
     company_id = Column(
         Integer,
@@ -23,6 +19,12 @@ class Sale(Base):
     invoice_number = Column(
         String(50),
         unique=True,
+        nullable=False
+    )
+
+    customer_id = Column(
+        Integer,
+        ForeignKey("customers.id"),
         nullable=False
     )
 
@@ -68,6 +70,8 @@ class Sale(Base):
     )
 
     company = relationship("Company")
+
+    customer = relationship("Customer")
 
     items = relationship(
         "SaleItem",

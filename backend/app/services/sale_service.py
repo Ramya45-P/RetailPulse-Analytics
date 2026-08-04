@@ -5,6 +5,8 @@ from datetime import datetime
 from app.models.sale import Sale
 from app.models.sale_item import SaleItem
 from app.models.product import Product
+from app.models.customer import Customer
+from app.models.customer_purchase_summary import CustomerPurchaseSummary
 from app.schemas.sale_schema import SaleCreate
 
 
@@ -22,6 +24,17 @@ def create_sale(
         raise HTTPException(
             status_code=404,
             detail="Product not found"
+        )
+
+    customer = db.query(Customer).filter(
+        Customer.id == sale.customer_id,
+        Customer.company_id == sale.company_id
+    ).first()
+
+    if not customer:
+        raise HTTPException(
+            status_code=404,
+            detail="Customer not found"
         )
 
     if sale.quantity <= 0:
@@ -66,11 +79,11 @@ def create_sale(
     )
 
     subtotal = sale.quantity * sale.unit_price
-
     total = subtotal - sale.discount + sale.tax
 
     db_sale = Sale(
         company_id=sale.company_id,
+        customer_id=sale.customer_id,
         invoice_number=invoice,
         customer_name=sale.customer_name,
         sales_channel=sale.sales_channel,
@@ -104,11 +117,35 @@ def create_sale(
     else:
         product.status = "Active"
 
+    summary = db.query(CustomerPurchaseSummary).filter(
+        CustomerPurchaseSummary.customer_id == sale.customer_id
+    ).first()
+
+    if summary is None:
+        summary = CustomerPurchaseSummary(
+            customer_id=sale.customer_id,
+            total_orders=1,
+            total_revenue=total,
+            total_quantity=sale.quantity,
+            average_order_value=total,
+            purchase_frequency=1,
+            first_purchase_date=datetime.utcnow(),
+            last_purchase_date=datetime.utcnow(),
+        )
+        db.add(summary)
+    else:
+        summary.total_orders += 1
+        summary.total_revenue += total
+        summary.total_quantity += sale.quantity
+        summary.average_order_value = (
+            summary.total_revenue / summary.total_orders
+        )
+        summary.purchase_frequency = summary.total_orders
+        summary.last_purchase_date = datetime.utcnow()
+
     db.commit()
 
     return db_sale
-
-
 def get_sales(
     db: Session,
     company_id: int
