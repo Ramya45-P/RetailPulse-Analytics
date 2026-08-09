@@ -21,6 +21,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import Reports from "./pages/Reports";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import Customers from "./pages/Customers";
+import Forecast from "./pages/Forecast";
 
 
 function App() {
@@ -104,6 +105,11 @@ function App() {
           <Route
             path="/customers"
             element={<Customers />}
+          />
+
+          <Route
+            path="/forecast"
+            element={<Forecast />}
           />
 
         </Route>

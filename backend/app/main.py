@@ -9,6 +9,8 @@ from app.models.sale import Sale
 from app.models.sale_item import SaleItem
 from app.models.customer_purchase_summary import CustomerPurchaseSummary
 from app.models.customer import Customer
+from app.models.demand_forecast import DemandForecast
+from app.models.forecast_history import ForecastHistory
 
 from app.routers.company_router import router as company_router
 from app.routers.auth_router import router as auth_router
@@ -20,6 +22,7 @@ from app.routers.sale_router import router as sale_router
 from app.routers.inventory_router import router as inventory_router
 from app.routers.analytics_router import router as analytics_router
 from app.routers.customer_router import router as customer_router
+from app.routers.forecast_router import router as forecast_router
 
 app = FastAPI(
     title="RetailPulse Analytics API",
@@ -48,6 +51,8 @@ app.include_router(dashboard_router)
 app.include_router(inventory_router)
 app.include_router(analytics_router)
 app.include_router(customer_router)
+app.include_router(forecast_router)
+
 @app.get("/")
 def root():
     return {
