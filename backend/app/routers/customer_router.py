@@ -27,6 +27,7 @@ router = APIRouter(
 
 
 # CREATE CUSTOMER
+
 @router.post(
     "/",
     response_model=CustomerResponse,
@@ -36,14 +37,22 @@ def add_customer(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return create_customer(
-        db,
-        customer,
-        current_user.company_id,
-    )
+    try:
+        return create_customer(
+            db,
+            customer,
+            current_user.company_id,
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )
 
 
 # GET ALL CUSTOMERS
+
 @router.get(
     "/",
     response_model=list[CustomerResponse],
@@ -59,6 +68,7 @@ def list_customers(
 
 
 # GET SINGLE CUSTOMER
+
 @router.get(
     "/{customer_id}",
     response_model=CustomerResponse,
@@ -84,6 +94,7 @@ def customer_details(
 
 
 # UPDATE CUSTOMER
+
 @router.put(
     "/{customer_id}",
     response_model=CustomerResponse,
@@ -94,23 +105,31 @@ def edit_customer(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    updated_customer = update_customer(
-        db,
-        customer_id,
-        customer,
-        current_user.company_id,
-    )
-
-    if not updated_customer:
-        raise HTTPException(
-            status_code=404,
-            detail="Customer not found",
+    try:
+        updated_customer = update_customer(
+            db,
+            customer_id,
+            customer,
+            current_user.company_id,
         )
 
-    return updated_customer
+        if not updated_customer:
+            raise HTTPException(
+                status_code=404,
+                detail="Customer not found",
+            )
+
+        return updated_customer
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )
 
 
-# DELETE CUSTOMER
+# DELETE CUSTOMER — SOFT DELETE
+
 @router.delete("/{customer_id}")
 def remove_customer(
     customer_id: int,
@@ -130,5 +149,6 @@ def remove_customer(
         )
 
     return {
-        "message": "Customer deleted successfully"
+        "message": "Customer deactivated successfully",
+        "customer_id": customer.customer_id,
     }

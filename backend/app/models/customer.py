@@ -56,9 +56,20 @@ class Customer(Base):
 
     country = Column(String(100))
 
+    postal_code = Column(
+        String(20),
+        nullable=True,
+    )
+
     customer_type = Column(
         String(30),
         default="Retail",
+    )
+
+    customer_segment = Column(
+        String(20),
+        default="New",
+        nullable=False,
     )
 
     preferred_sales_channel = Column(
