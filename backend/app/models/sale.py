@@ -8,7 +8,11 @@ from app.database.database import Base
 class Sale(Base):
     __tablename__ = "sales"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
 
     company_id = Column(
         Integer,
@@ -46,6 +50,17 @@ class Sale(Base):
     payment_method = Column(
         String(50),
         nullable=False
+    )
+
+    payment_status = Column(
+        String(30),
+        nullable=False,
+        default="Paid"
+    )
+
+    notes = Column(
+        String(500),
+        nullable=True
     )
 
     total_amount = Column(
