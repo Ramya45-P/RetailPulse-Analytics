@@ -8,21 +8,25 @@ import {
   Button,
 } from "@mui/material";
 
-import { getAnalyticsDashboard } from "../api/analyticsApi";
-
+import {
+  getSalesSummary,
+  getSalesTrend,
+  getTopProducts,
+  getCustomerAnalytics,
+  getPaymentMethods,
+} from "../api/analyticsApi";
 
 export default function AnalyticsDashboard() {
 
   const [kpis, setKpis] = useState<any>({});
-
+  const [filterType, setFilterType] = useState("30days");
 
   const loadDashboard = async () => {
 
     try {
 
-      const data = await getAnalyticsDashboard();
-
-      setKpis(data);
+      const summary = await getSalesSummary(filterType);
+      setKpis(summary);
 
     } catch(error){
 
@@ -39,39 +43,32 @@ export default function AnalyticsDashboard() {
 
   },[]);
 
+  
   const cards = [
   {
     title: "Total Revenue",
-    value: `₹${(kpis?.total_revenue ?? 0).toLocaleString()}`
+    value: `₹${(kpis?.total_revenue ?? 0).toLocaleString()}`,
   },
   {
     title: "Total Orders",
-    value: kpis?.total_orders ?? 0
-  },
-  {
-    title: "Products Sold",
-    value: kpis?.total_products_sold ?? 0
+    value: kpis?.total_orders ?? 0,
   },
   {
     title: "Average Order Value",
-    value: `₹${kpis?.average_order_value ?? 0}`
+    value: `₹${(kpis?.average_order_value ?? 0).toLocaleString()}`,
   },
   {
-    title: "Inventory Value",
-    value: `₹${(kpis?.total_inventory_value ?? 0).toLocaleString()}`
+    title: "Total Items Sold",
+    value: kpis?.total_items_sold ?? 0,
   },
   {
-    title: "Low Stock Products",
-    value: kpis?.low_stock_products ?? 0
+    title: "Total Discount",
+    value: `₹${(kpis?.total_discount ?? 0).toLocaleString()}`,
   },
   {
-    title: "Out Of Stock Products",
-    value: kpis?.out_of_stock_products ?? 0
+    title: "Total Tax",
+    value: `₹${(kpis?.total_tax ?? 0).toLocaleString()}`,
   },
-  {
-    title: "Categories",
-    value: kpis?.total_categories ?? 0
-  }
 ];
   return (
 

@@ -19,7 +19,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 import { getDashboardStats } from "../api/dashboardApi";
-import { getAnalyticsDashboard } from "../api/analyticsApi";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -42,8 +41,7 @@ export default function Dashboard() {
     const dashboardData = await getDashboardStats();
     setStats(dashboardData);
 
-    const analyticsData = await getAnalyticsDashboard();
-    setAnalytics(analyticsData);
+    
   } catch (error) {
     console.log(error);
   }
@@ -63,55 +61,53 @@ const [analytics, setAnalytics] = useState<any>({
  const cards = [
   {
     title: "Total Revenue",
-    value: `₹ ${Number(analytics.total_revenue).toLocaleString("en-IN")}`,
+    value: `₹ ${Number(stats.totalRevenue).toLocaleString("en-IN")}`,
     color: "#2e7d32",
     icon: <CurrencyRupeeIcon sx={{ fontSize: 38 }} />,
   },
   {
     title: "Total Orders",
-    value: analytics.total_orders,
+    value: stats.totalOrders,
     color: "#ed6c02",
     icon: <ShoppingCartIcon sx={{ fontSize: 38 }} />,
   },
   {
     title: "Products Sold",
-    value: analytics.total_products_sold,
+    value: stats.totalUnitsSold,
     color: "#1976d2",
     icon: <LocalShippingIcon sx={{ fontSize: 38 }} />,
   },
   {
     title: "Average Order",
-    value: `₹ ${Number(analytics.average_order_value).toLocaleString("en-IN")}`,
+    value: `₹ ${Number(stats.averageOrderValue).toLocaleString("en-IN")}`,
     color: "#6a1b9a",
     icon: <TrendingUpIcon sx={{ fontSize: 38 }} />,
   },
   {
-    title: "Inventory Value",
-    value: `₹ ${Number(analytics.total_inventory_value).toLocaleString("en-IN")}`,
+    title: "Total Products",
+    value: stats.totalProducts,
     color: "#00838f",
     icon: <InventoryIcon sx={{ fontSize: 38 }} />,
   },
   {
-    title: "Low Stock",
-    value: analytics.low_stock_products,
-    color: "#f57c00",
-    icon: <InventoryIcon sx={{ fontSize: 38 }} />,
+    title: "Active Products",
+    value: stats.activeProducts,
+    color: "#2e7d32",
+    icon: <CheckCircleIcon sx={{ fontSize: 38 }} />,
   },
   {
-    title: "Out Of Stock",
-    value: analytics.out_of_stock_products,
+    title: "Inactive Products",
+    value: stats.inactiveProducts,
     color: "#d32f2f",
     icon: <CancelIcon sx={{ fontSize: 38 }} />,
   },
   {
     title: "Categories",
-    value: analytics.total_categories,
+    value: stats.totalCategories,
     color: "#5e35b1",
     icon: <CategoryIcon sx={{ fontSize: 38 }} />,
   },
-]; 
-     
-
+];
   return (
     <Box
       sx={{

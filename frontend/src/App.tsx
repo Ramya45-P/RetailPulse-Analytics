@@ -19,9 +19,10 @@ import Layout from "./components/Layout";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Reports from "./pages/Reports";
-import AnalyticsDashboard from "./pages/AnalyticsDashboard";
+
 import Customers from "./pages/Customers";
 import Forecast from "./pages/Forecast";
+import SalesAnalytics from "./pages/SalesAnalytics";
 
 
 function App() {
@@ -100,7 +101,7 @@ function App() {
             />
           <Route
           path="/analytics"
-          element={<AnalyticsDashboard />}
+          element={<SalesAnalytics />}
 />  
           <Route
             path="/customers"
@@ -111,6 +112,11 @@ function App() {
             path="/forecast"
             element={<Forecast />}
           />
+
+          <Route
+           path="/analytics/sales" 
+           element={<SalesAnalytics />}
+            />
 
         </Route>
 

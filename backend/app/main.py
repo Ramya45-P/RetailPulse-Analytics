@@ -23,6 +23,8 @@ from app.routers.inventory_router import router as inventory_router
 from app.routers.analytics_router import router as analytics_router
 from app.routers.customer_router import router as customer_router
 from app.routers.forecast_router import router as forecast_router
+from app.routers import analytics
+
 
 app = FastAPI(
     title="RetailPulse Analytics API",
@@ -52,6 +54,7 @@ app.include_router(inventory_router)
 app.include_router(analytics_router)
 app.include_router(customer_router)
 app.include_router(forecast_router)
+app.include_router(analytics_router)
 
 @app.get("/")
 def root():
