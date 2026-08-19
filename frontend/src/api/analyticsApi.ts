@@ -1,98 +1,134 @@
 import api from "./axios";
 
+export interface AnalyticsFilters {
+  filterType: string;
+  startDate?: string;
+  endDate?: string;
+  productId?: number | "";
+  categoryId?: number | "";
+  customerId?: number | "";
+  paymentMethod?: string;
+}
+
+const buildParams = (filters: AnalyticsFilters) => {
+  const params: Record<string, string | number> = {
+    filter_type: filters.filterType,
+  };
+
+  if (filters.filterType === "custom") {
+    if (filters.startDate) {
+      params.start_date = filters.startDate;
+    }
+
+    if (filters.endDate) {
+      params.end_date = filters.endDate;
+    }
+  }
+
+  if (filters.productId !== undefined && filters.productId !== "") {
+    params.product_id = filters.productId;
+  }
+
+  if (filters.categoryId !== undefined && filters.categoryId !== "") {
+    params.category_id = filters.categoryId;
+  }
+
+  if (filters.customerId !== undefined && filters.customerId !== "") {
+    params.customer_id = filters.customerId;
+  }
+
+  if (
+    filters.paymentMethod !== undefined &&
+    filters.paymentMethod !== ""
+  ) {
+    params.payment_method = filters.paymentMethod;
+  }
+
+  return params;
+};
+
 /**
- * Get Sales Summary / KPI data
- *
- * Returns:
- * - total_revenue
- * - total_orders
- * - average_order_value
- * - total_items_sold
- * - total_discount
- * - total_tax
+ * Sales Summary / KPI Analytics
  */
 export const getSalesSummary = async (
-  filterType: string = "30days"
+  filters: AnalyticsFilters
 ) => {
-  const { data } = await api.get("/analytics/sales/summary", {
-    params: {
-      filter_type: filterType,
-    },
-  });
+  const { data } = await api.get(
+    "/analytics/sales/summary",
+    {
+      params: buildParams(filters),
+    }
+  );
 
   return data;
 };
 
 /**
- * Get Sales Revenue Trend
- *
- * period:
- * - daily
- * - weekly
- * - monthly
- *
- * filterType:
- * - 7days
- * - 30days
- * - 90days
- * - 1year
+ * Sales Revenue Trend
  */
 export const getSalesTrend = async (
-  period: string = "monthly",
-  filterType: string = "30days"
+  period: string,
+  filters: AnalyticsFilters
 ) => {
-  const { data } = await api.get("/analytics/sales/trend", {
-    params: {
-      period,
-      filter_type: filterType,
-    },
-  });
+  const { data } = await api.get(
+    "/analytics/sales/trend",
+    {
+      params: {
+        ...buildParams(filters),
+        period,
+      },
+    }
+  );
 
   return data;
 };
 
 /**
- * Get Product Performance Analytics
+ * Product Performance
  */
 export const getProductPerformance = async (
-  filterType: string = "30days"
+  filters: AnalyticsFilters,
+  sortBy: string = "revenue"
 ) => {
-  const { data } = await api.get("/analytics/sales/products", {
-    params: {
-      filter_type: filterType,
-    },
-  });
+  const { data } = await api.get(
+    "/analytics/sales/products",
+    {
+      params: {
+        ...buildParams(filters),
+        sort_by: sortBy,
+      },
+    }
+  );
 
   return data;
 };
 
 /**
- * Get Customer Contribution Analytics
+ * Customer Contribution
  */
 export const getCustomerContribution = async (
-  filterType: string = "30days"
+  filters: AnalyticsFilters
 ) => {
-  const { data } = await api.get("/analytics/sales/customers", {
-    params: {
-      filter_type: filterType,
-    },
-  });
+  const { data } = await api.get(
+    "/analytics/sales/customers",
+    {
+      params: buildParams(filters),
+    }
+  );
 
   return data;
 };
 
 /**
- * Get Payment Method Analytics
+ * Payment Method Analytics
  */
 export const getPaymentPatterns = async (
-  filterType: string = "30days"
+  filters: AnalyticsFilters
 ) => {
   const { data } = await api.get(
     "/analytics/sales/payment-methods",
     {
-      params: {
-        filter_type: filterType,
-      },
+      params: buildParams(filters),
     }
   );
 
