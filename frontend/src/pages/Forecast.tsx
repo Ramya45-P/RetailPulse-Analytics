@@ -303,34 +303,29 @@ setForecast(data?.forecast || data?.data || data);
             <Grid size={{ xs: 12, md: 5 }}>
               <FormControl fullWidth>
                 <InputLabel>Product</InputLabel>
-
-                <Select
-                  value={selectedProduct}
-                  label="Product"
-                  onChange={(e) =>
-                    setSelectedProduct(
-                      e.target.value === ""
-                        ? ""
-                        : Number(e.target.value)
-                    )
-                  }
-                  disabled={loadingProducts}
-                >
-                  {loadingProducts ? (
-                    <MenuItem disabled>
-                      Loading products...
-                    </MenuItem>
-                  ) : (
-                    products.map((product) => (
-                      <MenuItem
-                        key={product.id}
-                        value={product.id}
-                      >
-                        {product.name}
-                      </MenuItem>
-                    ))
-                  )}
-                </Select>
+               <Select
+  value={selectedProduct}
+  label="Product"
+  onChange={(e) => {
+  setSelectedProduct(Number(e.target.value));
+}}
+  disabled={loadingProducts}
+>
+  {loadingProducts ? (
+    <MenuItem disabled>
+      Loading products...
+    </MenuItem>
+  ) : (
+    products.map((product) => (
+      <MenuItem
+        key={product.id}
+        value={product.id}
+      >
+        {product.name}
+      </MenuItem>
+    ))
+  )}
+</Select> 
               </FormControl>
             </Grid>
 
@@ -340,12 +335,12 @@ setForecast(data?.forecast || data?.data || data);
                 <InputLabel>Forecast Period</InputLabel>
 
                 <Select
-                  value={forecastPeriod}
-                  label="Forecast Period"
-                  onChange={(e) =>
-                    setForecastPeriod(e.target.value)
-                  }
-                >
+  value={forecastPeriod}
+  label="Forecast Period"
+  onChange={(e) => 
+    setForecastPeriod(e.target.value)
+  } 
+>
                   <MenuItem value="Next 7 Days">
                     Next 7 Days
                   </MenuItem>

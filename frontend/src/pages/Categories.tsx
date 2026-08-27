@@ -22,7 +22,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
-} from "../api/categoryApi";
+} from "../api/categoriesApi";
 
 interface Category {
   id: number;

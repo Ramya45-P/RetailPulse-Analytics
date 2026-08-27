@@ -46,7 +46,7 @@ export default function Dashboard() {
     console.log(error);
   }
 };
-const [analytics, setAnalytics] = useState<any>({
+const [analytics] = useState<any>({
   total_revenue: 0,
   total_orders: 0,
   total_products_sold: 0,
@@ -131,7 +131,10 @@ const [analytics, setAnalytics] = useState<any>({
 
       <Grid container spacing={3}>
         {cards.map((card, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
+          <Grid
+  size={{ xs: 12, sm: 6, md: 3 }}
+  key={index}
+>
             <Card
               sx={{
                 borderRadius: 4,
@@ -178,7 +181,7 @@ const [analytics, setAnalytics] = useState<any>({
       </Grid>
 
       <Grid container spacing={3} mt={4}>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Card
             sx={{
               borderRadius: 4,
@@ -245,7 +248,7 @@ const [analytics, setAnalytics] = useState<any>({
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card
             sx={{
               borderRadius: 4,
@@ -283,7 +286,7 @@ const [analytics, setAnalytics] = useState<any>({
         </Grid>
       </Grid>
       <Grid container spacing={3} mt={4}>
-  <Grid item xs={12}>
+  <Grid size={{ xs: 12, md: 12 }}>
     <Card
       sx={{
         borderRadius: 4,

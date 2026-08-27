@@ -60,9 +60,7 @@ function Login() {
         <Grid container>
           {/* Left Side */}
           <Grid
-            item
-            xs={12}
-            md={6}
+            size={{ xs: 12, md: 6 }}
             sx={{
               bgcolor: "#1565c0",
               color: "white",
@@ -119,9 +117,7 @@ function Login() {
 
           {/* Right Side */}
           <Grid
-            item
-            xs={12}
-            md={6}
+            size={{ xs: 12, md: 6 }}
             sx={{
               p: 6,
             }}

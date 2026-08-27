@@ -134,7 +134,7 @@ return (
 
     {/* Search & Filters */}
    <Grid container spacing={2} sx={{ mb: 3 }}>
-   <Grid item xs={12} md={4}>
+   <Grid size={{ xs: 12, md: 4 }}>
     <TextField
       fullWidth
       label="Search Customer"
@@ -143,7 +143,7 @@ return (
     />
   </Grid>
 
-  <Grid item xs={12} md={4}>
+  <Grid size={{ xs: 12, md: 4 }}>
     <FormControl fullWidth>
       <InputLabel>Sales Channel</InputLabel>
       <Select
@@ -158,7 +158,7 @@ return (
     </FormControl>
   </Grid>
 
-  <Grid item xs={12} md={4}>
+  <Grid size={{ xs: 12, md: 4 }}>
     <FormControl fullWidth>
       <InputLabel>Payment Method</InputLabel>
       <Select
@@ -177,7 +177,7 @@ return (
 
     {/* Summary Cards */}
     <Grid container spacing={3} sx={{ mb: 4 }}>
-  <Grid item xs={12} md={4}>
+  <Grid size={{ xs: 12, md: 4 }}>
     <Card>
       <CardContent>
         <Typography color="text.secondary">
@@ -191,7 +191,7 @@ return (
     </Card>
   </Grid>
 
-  <Grid item xs={12} md={4}>
+  <Grid size={{ xs: 12, md: 4 }}>
     <Card>
       <CardContent>
         <Typography color="text.secondary">
@@ -205,7 +205,7 @@ return (
     </Card>
   </Grid>
 
-  <Grid item xs={12} md={4}>
+  <Grid size={{ xs: 12, md: 4 }}>
     <Card>
       <CardContent>
         <Typography color="text.secondary">

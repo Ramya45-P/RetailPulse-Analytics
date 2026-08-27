@@ -25,7 +25,7 @@ import {
 } from "@mui/material";
 
 import Sidebar from "../components/Sidebar";
-import { getCategories } from "../api/categoryApi";
+import { getCategories } from "../api/categoriesApi";
 
 import {
   getProducts,

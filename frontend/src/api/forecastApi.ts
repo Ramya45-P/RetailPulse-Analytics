@@ -1,29 +1,18 @@
 import api from "./axios";
-export const getProductForecast = async (
-  productId: number,
-  companyId: number,
-  forecastPeriod: string
-) => {
-  const response = await api.get(`/forecast/product/${productId}`, {
-    params: {
-      forecast_period: forecastPeriod,
-    },
-  });
 
-  return response.data;
-};
+export interface ForecastItem {
+  id?: number;
+  company_id: number;
+  product_id: number;
+  predicted_demand: number;
+  confidence_score: number;
+  recommended_stock: number;
+  reorder_recommended: string;
+  forecast_period: number;
+  historical_average_sales: number;
+}
 
-
-export const generateForecast = async (
-  productId: number,
-  companyId: number,
-  forecastPeriod: string
-) => {
-  const response = await api.post("/forecast/", {
-    product_id: productId,
-    company_id: companyId,
-    forecast_period: forecastPeriod,
-  });
-
+export const getForecasts = async (): Promise<ForecastItem[]> => {
+  const response = await api.get("/forecast/");
   return response.data;
 };

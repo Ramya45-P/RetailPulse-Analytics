@@ -2,34 +2,14 @@ import api from "./axios";
 
 export const getProductForecast = async (
   productId: number,
-  companyId: number,
+  _companyId: number,
   forecastPeriod: string
 ) => {
-  const response = await api.get(`/forecast/product/${productId}`, {
-    params: {
-      forecast_period: forecastPeriod,
-    },
-  });
-
-  return response.data;
-};
-
-export const generateForecast = async (
-  productId: number,
-  companyId: number,
-  forecastPeriod: string
-) => {
-  const response = await api.post(
-    `/forecast/generate/${productId}`,
-    null,
+  const response = await api.get(
+    `/forecast/product/${productId}`,
     {
       params: {
-        forecast_days:
-          forecastPeriod === "Next 7 Days"
-            ? 7
-            : forecastPeriod === "Next 30 Days"
-            ? 30
-            : 90,
+        forecast_period: forecastPeriod,
       },
     }
   );
@@ -37,29 +17,59 @@ export const generateForecast = async (
   return response.data;
 };
 
-
-export const getCategoryForecasts = async (
-  companyId: number,
+export const generateForecast = async (
+  productId: number,
+  _companyId: number,
   forecastPeriod: string
 ) => {
-  const response = await api.get("/forecast/category", {
-    params: {
-      forecast_period: forecastPeriod,
-    },
-  });
+  const forecastDays =
+    forecastPeriod === "Next 7 Days"
+      ? 7
+      : forecastPeriod === "Next 30 Days"
+      ? 30
+      : 90;
+
+  const response = await api.post(
+    `/forecast/generate/${productId}`,
+    null,
+    {
+      params: {
+        forecast_days: forecastDays,
+      },
+    }
+  );
+
+  return response.data;
+};
+
+export const getCategoryForecasts = async (
+  _companyId: number,
+  forecastPeriod: string
+) => {
+  const response = await api.get(
+    "/forecast/category",
+    {
+      params: {
+        forecast_period: forecastPeriod,
+      },
+    }
+  );
 
   return response.data;
 };
 
 export const getForecastAnalytics = async (
-  companyId: number,
+  _companyId: number,
   forecastPeriod: string
 ) => {
-  const response = await api.get("/forecast/analytics", {
-    params: {
-      forecast_period: forecastPeriod,
-    },
-  });
+  const response = await api.get(
+    "/forecast/analytics",
+    {
+      params: {
+        forecast_period: forecastPeriod,
+      },
+    }
+  );
 
   return response.data;
 };

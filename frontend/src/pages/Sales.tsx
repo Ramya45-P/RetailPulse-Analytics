@@ -102,7 +102,7 @@ export default function Sales() {
   const [editSale, setEditSale] =
   useState<SaleDetail | null>(null);
 
-const [editLoading, setEditLoading] =
+const [, setEditLoading] =
   useState(false);
 
   const [detailsLoading, setDetailsLoading] =

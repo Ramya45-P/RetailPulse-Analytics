@@ -14,6 +14,7 @@ import Products from "./pages/Products";
 import Categories from "./pages/Categories";
 import Sales from "./pages/Sales";
 import Inventory from "./pages/Inventory";
+import InventoryForecast from "./pages/InventoryForecast";
 
 import Layout from "./components/Layout";
 
@@ -117,6 +118,11 @@ function App() {
            path="/analytics/sales" 
            element={<SalesAnalytics />}
             />
+
+            <Route
+             path="/inventory/forecast"
+             element={<InventoryForecast />}
+/>
 
         </Route>
 

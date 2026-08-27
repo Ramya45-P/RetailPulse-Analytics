@@ -60,7 +60,7 @@ export default function Inventory() {
         <Grid container spacing={3} mb={3}>
 
 
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
 
@@ -78,7 +78,7 @@ export default function Inventory() {
 
 
 
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
 
@@ -102,7 +102,7 @@ export default function Inventory() {
 
 
 
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
 
