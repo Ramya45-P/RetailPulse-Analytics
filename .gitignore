@@ -1,0 +1,30 @@
+# Environment variables and secrets
+.env
+*.env
+
+# Local SQLite database
+*.db
+*.sqlite
+*.sqlite3
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Uploaded/generated files
+backend/uploads/
+
+# Frontend dependencies/build
+frontend/node_modules/
+frontend/dist/
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

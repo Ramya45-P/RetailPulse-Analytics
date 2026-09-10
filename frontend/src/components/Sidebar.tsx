@@ -18,8 +18,11 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import PeopleIcon from "@mui/icons-material/People";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import AutoGraphIcon from "@mui/icons-material/AutoGraph";
 
 import { Link, useLocation } from "react-router-dom";
+
 
 const drawerWidth = 240;
 
@@ -38,6 +41,11 @@ export default function Sidebar() {
       path: "/products",
     },
     {
+  text: "Data Import",
+  icon: <UploadFileIcon />,
+  path: "/data-import",
+},
+    {
       text: "Categories",
       icon: <CategoryIcon />,
       path: "/categories",
@@ -52,6 +60,11 @@ export default function Sidebar() {
       icon: <InventoryIcon />,
       path: "/inventory",
     },
+    {
+  text: "Inventory Forecast",
+  icon: <AutoGraphIcon />,
+  path: "/inventory/forecast",
+},
     {
       text: "Customers",
       icon: <PeopleIcon />,

@@ -11,6 +11,8 @@ from app.models.customer_purchase_summary import CustomerPurchaseSummary
 from app.models.customer import Customer
 from app.models.demand_forecast import DemandForecast
 from app.models.forecast_history import ForecastHistory
+from app.models.import_history import ImportHistory
+from app.models.import_error import ImportErrorRecord
 
 from app.routers.company_router import router as company_router
 from app.routers.auth_router import router as auth_router
@@ -23,7 +25,8 @@ from app.routers.inventory_router import router as inventory_router
 from app.routers.analytics_router import router as analytics_router
 from app.routers.customer_router import router as customer_router
 from app.routers.forecast_router import router as forecast_router
-from app.routers import analytics
+
+from app.routers.import_router import router as import_router
 
 
 app = FastAPI(
@@ -54,7 +57,7 @@ app.include_router(inventory_router)
 app.include_router(analytics_router)
 app.include_router(customer_router)
 app.include_router(forecast_router)
-app.include_router(analytics_router)
+app.include_router(import_router)
 
 @app.get("/")
 def root():

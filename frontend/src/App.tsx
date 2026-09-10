@@ -24,6 +24,7 @@ import Reports from "./pages/Reports";
 import Customers from "./pages/Customers";
 import Forecast from "./pages/Forecast";
 import SalesAnalytics from "./pages/SalesAnalytics";
+import DataImport from "./pages/DataImport";
 
 
 function App() {
@@ -98,12 +99,12 @@ function App() {
 
           <Route
            path="/reports"
-            element={<Reports />} 
+            element={<Reports />}
             />
           <Route
           path="/analytics"
           element={<SalesAnalytics />}
-/>  
+/>
           <Route
             path="/customers"
             element={<Customers />}
@@ -115,14 +116,19 @@ function App() {
           />
 
           <Route
-           path="/analytics/sales" 
+           path="/analytics/sales"
            element={<SalesAnalytics />}
             />
 
             <Route
              path="/inventory/forecast"
              element={<InventoryForecast />}
+            />
+          <Route
+  path="/data-import"
+  element={<DataImport />}
 />
+
 
         </Route>
 
