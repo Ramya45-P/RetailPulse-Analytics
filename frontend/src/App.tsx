@@ -17,32 +17,25 @@ import Inventory from "./pages/Inventory";
 import InventoryForecast from "./pages/InventoryForecast";
 
 import Layout from "./components/Layout";
-
 import ProtectedRoute from "./routes/ProtectedRoute";
-import Reports from "./pages/Reports";
 
+import Reports from "./pages/Reports";
 import Customers from "./pages/Customers";
 import Forecast from "./pages/Forecast";
 import SalesAnalytics from "./pages/SalesAnalytics";
 import DataImport from "./pages/DataImport";
-
+import AuditLogs from "./pages/AuditLogs";
 
 function App() {
-
   return (
-
     <BrowserRouter>
-
       <Routes>
 
-        {/* Default */}
         <Route
           path="/"
           element={<Navigate to="/login" replace />}
         />
 
-
-        {/* Public Pages */}
         <Route
           path="/login"
           element={<Login />}
@@ -58,8 +51,6 @@ function App() {
           element={<CompanyRegister />}
         />
 
-
-        {/* Protected Pages With Sidebar */}
         <Route
           element={
             <ProtectedRoute>
@@ -67,30 +58,25 @@ function App() {
             </ProtectedRoute>
           }
         >
-
           <Route
             path="/dashboard"
             element={<Dashboard />}
           />
-
 
           <Route
             path="/products"
             element={<Products />}
           />
 
-
           <Route
             path="/categories"
             element={<Categories />}
           />
 
-
           <Route
             path="/sales"
             element={<Sales />}
           />
-
 
           <Route
             path="/inventory"
@@ -98,13 +84,15 @@ function App() {
           />
 
           <Route
-           path="/reports"
+            path="/reports"
             element={<Reports />}
-            />
+          />
+
           <Route
-          path="/analytics"
-          element={<SalesAnalytics />}
-/>
+            path="/analytics"
+            element={<SalesAnalytics />}
+          />
+
           <Route
             path="/customers"
             element={<Customers />}
@@ -116,29 +104,29 @@ function App() {
           />
 
           <Route
-           path="/analytics/sales"
-           element={<SalesAnalytics />}
-            />
+            path="/analytics/sales"
+            element={<SalesAnalytics />}
+          />
 
-            <Route
-             path="/inventory/forecast"
-             element={<InventoryForecast />}
-            />
           <Route
-  path="/data-import"
-  element={<DataImport />}
-/>
+            path="/inventory/forecast"
+            element={<InventoryForecast />}
+          />
 
+          <Route
+            path="/data-import"
+            element={<DataImport />}
+          />
 
+          <Route
+            path="/audit-logs"
+            element={<AuditLogs />}
+          />
         </Route>
 
-
       </Routes>
-
     </BrowserRouter>
-
   );
 }
-
 
 export default App;

@@ -20,6 +20,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import AutoGraphIcon from "@mui/icons-material/AutoGraph";
+import SecurityIcon from "@mui/icons-material/Security";
 
 import { Link, useLocation } from "react-router-dom";
 
@@ -85,6 +86,12 @@ export default function Sidebar() {
       icon: <BarChartIcon />,
       path: "/analytics",
     },
+
+    {
+  text: "Audit Logs",
+  icon: <SecurityIcon />,
+  path: "/audit-logs",
+},
   ];
 
   return (

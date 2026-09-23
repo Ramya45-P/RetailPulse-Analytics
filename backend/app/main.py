@@ -13,6 +13,8 @@ from app.models.demand_forecast import DemandForecast
 from app.models.forecast_history import ForecastHistory
 from app.models.import_history import ImportHistory
 from app.models.import_error import ImportErrorRecord
+from app.models.audit_log import AuditLog
+
 
 from app.routers.company_router import router as company_router
 from app.routers.auth_router import router as auth_router
@@ -27,6 +29,7 @@ from app.routers.customer_router import router as customer_router
 from app.routers.forecast_router import router as forecast_router
 
 from app.routers.import_router import router as import_router
+from app.routers.audit_router import router as audit_router
 
 
 app = FastAPI(
@@ -58,6 +61,7 @@ app.include_router(analytics_router)
 app.include_router(customer_router)
 app.include_router(forecast_router)
 app.include_router(import_router)
+app.include_router(audit_router)
 
 @app.get("/")
 def root():
