@@ -6,6 +6,8 @@ import {
   Avatar,
 } from "@mui/material";
 
+import NotificationCenter from "./NotificationCenter";
+
 export default function Topbar() {
   return (
     <AppBar
@@ -22,6 +24,10 @@ export default function Topbar() {
           justifyContent: "space-between",
         }}
       >
+        {/* =====================================================
+            LEFT SIDE
+        ===================================================== */}
+
         <Box>
           <Typography
             variant="h5"
@@ -38,6 +44,10 @@ export default function Topbar() {
           </Typography>
         </Box>
 
+        {/* =====================================================
+            RIGHT SIDE
+        ===================================================== */}
+
         <Box
           display="flex"
           alignItems="center"
@@ -46,6 +56,12 @@ export default function Topbar() {
           <Typography color="text.secondary">
             {new Date().toLocaleDateString()}
           </Typography>
+
+          {/* Notification Center */}
+
+          <NotificationCenter />
+
+          {/* User Avatar */}
 
           <Avatar
             sx={{

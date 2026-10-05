@@ -3,6 +3,7 @@ import io
 import json
 import re
 import uuid
+
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -21,6 +22,10 @@ from app.models.sale import Sale
 from app.models.sale_item import SaleItem
 from app.models.user import User
 
+from app.services.notification_service import (
+    notify_admins,
+    notify_system_alert,
+)
 
 MAX_FILE_SIZE = 10 * 1024 * 1024
 
@@ -59,7 +64,6 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 def normalize(value: Any) -> str:
     if value is None:
         return ""
-
     return str(value).strip()
 
 
@@ -68,19 +72,21 @@ def normalize_column(value: Any) -> str:
 
 
 def validate_import_type(import_type: str):
+    import_type = import_type.strip().title()
+
     if import_type not in IMPORT_TYPES:
         raise HTTPException(
             status_code=400,
             detail="Unsupported import type",
         )
 
-
+    return import_type
 def get_file_path(import_id: int) -> Path:
     return UPLOAD_DIR / f"{import_id}.csv"
 
 
 def parse_csv_bytes(file_bytes: bytes, import_type: str):
-    validate_import_type(import_type)
+    import_type = validate_import_type(import_type)
 
     try:
         text = file_bytes.decode("utf-8-sig")
@@ -284,6 +290,7 @@ def validate_customer_row(
         errors.append("Invalid phone number")
 
     if email:
+
         if email in seen_emails:
             errors.append("Duplicate email in CSV")
 
@@ -304,6 +311,7 @@ def validate_customer_row(
         seen_emails.add(email)
 
     if phone:
+
         if phone in seen_phones:
             errors.append(
                 "Duplicate phone number in CSV"
@@ -374,6 +382,7 @@ def find_product(
         .first()
     )
 
+
 def is_duplicate_sale(
     db: Session,
     company_id: int,
@@ -383,10 +392,6 @@ def is_duplicate_sale(
     unit_price: float,
     sale_date: datetime,
 ) -> bool:
-    """
-    Check whether an identical sales transaction
-    already exists in the database.
-    """
 
     if not sale_date:
         return False
@@ -416,8 +421,7 @@ def is_duplicate_sale(
             cast(
                 SaleItem.unit_price,
                 Float,
-            )
-            == float(unit_price),
+            ) == float(unit_price),
         )
         .first()
     )
@@ -436,21 +440,9 @@ def validate_sale_row(
     customer_value = normalize(row.get("Customer"))
     product_value = normalize(row.get("Product"))
 
-    quantity = parse_int(
-        row.get("Quantity")
-    )
-
-    unit_price = parse_float(
-        row.get("Unit Price")
-    )
-
-    sale_date = parse_sale_date(
-        row.get("Sale Date")
-    )
-
-    # -----------------------------------------
-    # Customer validation
-    # -----------------------------------------
+    quantity = parse_int(row.get("Quantity"))
+    unit_price = parse_float(row.get("Unit Price"))
+    sale_date = parse_sale_date(row.get("Sale Date"))
 
     customer = find_customer(
         db,
@@ -459,13 +451,7 @@ def validate_sale_row(
     )
 
     if not customer:
-        errors.append(
-            "Customer does not exist"
-        )
-
-    # -----------------------------------------
-    # Product validation
-    # -----------------------------------------
+        errors.append("Customer does not exist")
 
     product = find_product(
         db,
@@ -474,13 +460,7 @@ def validate_sale_row(
     )
 
     if not product:
-        errors.append(
-            "Product does not exist"
-        )
-
-    # -----------------------------------------
-    # Quantity validation
-    # -----------------------------------------
+        errors.append("Product does not exist")
 
     if quantity is None:
         errors.append(
@@ -491,10 +471,6 @@ def validate_sale_row(
             "Quantity must be greater than zero"
         )
 
-    # -----------------------------------------
-    # Unit price validation
-    # -----------------------------------------
-
     if unit_price is None:
         errors.append(
             "Unit Price must be a valid number"
@@ -504,18 +480,8 @@ def validate_sale_row(
             "Unit Price must be greater than zero"
         )
 
-    # -----------------------------------------
-    # Sale date validation
-    # -----------------------------------------
-
     if not sale_date:
-        errors.append(
-            "Invalid Sale Date"
-        )
-
-    # -----------------------------------------
-    # Inventory validation
-    # -----------------------------------------
+        errors.append("Invalid Sale Date")
 
     if (
         product
@@ -543,10 +509,6 @@ def validate_sale_row(
                 f"Available stock: {available_stock}"
             )
 
-    # -----------------------------------------
-    # Duplicate sale validation
-    # -----------------------------------------
-
     if (
         customer
         and product
@@ -556,6 +518,7 @@ def validate_sale_row(
         and unit_price > 0
         and sale_date
     ):
+
         sale_key = (
             customer.id,
             product.id,
@@ -564,20 +527,12 @@ def validate_sale_row(
             sale_date.date(),
         )
 
-        # -------------------------------------
-        # Duplicate inside the same CSV
-        # -------------------------------------
-
         if sale_key in seen_sales:
             errors.append(
                 "Duplicate sale transaction in CSV"
             )
         else:
             seen_sales.add(sale_key)
-
-        # -------------------------------------
-        # Duplicate already in database
-        # -------------------------------------
 
         if is_duplicate_sale(
             db=db,
@@ -690,6 +645,7 @@ def save_import_errors(
     )
 
     for error in errors:
+
         db.add(
             ImportErrorRecord(
                 import_id=import_id,
@@ -765,6 +721,7 @@ def upload_import_file(
         file_path.write_bytes(file_bytes)
 
     except Exception:
+
         db.delete(history)
         db.commit()
 
@@ -795,8 +752,7 @@ def validate_import(
         db.query(ImportHistory)
         .filter(
             ImportHistory.id == import_id,
-            ImportHistory.company_id
-            == current_user.company_id,
+            ImportHistory.company_id == current_user.company_id,
         )
         .first()
     )
@@ -818,6 +774,7 @@ def validate_import(
     file_bytes = file_path.read_bytes()
 
     try:
+
         _, rows = parse_csv_bytes(
             file_bytes,
             history.import_type,
@@ -831,9 +788,11 @@ def validate_import(
         )
 
         history.total_records = len(rows)
+
         history.failed_records = result[
             "invalid_records"
         ]
+
         history.duplicate_records = result[
             "duplicate_records"
         ]
@@ -854,15 +813,9 @@ def validate_import(
         return {
             "import_id": import_id,
             "total_records": len(rows),
-            "valid_records": result[
-                "valid_records"
-            ],
-            "invalid_records": result[
-                "invalid_records"
-            ],
-            "duplicate_records": result[
-                "duplicate_records"
-            ],
+            "valid_records": result["valid_records"],
+            "invalid_records": result["invalid_records"],
+            "duplicate_records": result["duplicate_records"],
             "errors": result["errors"],
             "status": history.status,
         }
@@ -870,13 +823,27 @@ def validate_import(
     except HTTPException:
         raise
 
-    except Exception:
+    except Exception as e:
         db.rollback()
 
-        raise HTTPException(
-            status_code=400,
-            detail="Unable to validate import file",
-        )
+        notify_system_alert(
+        db=db,
+        company_id=current_user.company_id,
+        title="Import Validation System Error",
+        message=(
+            f"An unexpected error occurred while validating "
+            f"import #{import_id}: {str(e)}"
+        ),
+        priority="High",
+        resource_type="Import",
+        resource_id=import_id,
+        expires_in_hours=24,
+    )
+
+    raise HTTPException(
+        status_code=400,
+        detail="Unable to validate import file",
+    )
 
 
 def generate_customer_id(
@@ -910,14 +877,15 @@ def import_products(
     failed = 0
 
     for row in rows:
+
         try:
+
             with db.begin_nested():
 
                 category = (
                     db.query(Category)
                     .filter(
-                        Category.company_id
-                        == company_id,
+                        Category.company_id == company_id,
                         Category.name.ilike(
                             normalize(row["Category"])
                         ),
@@ -987,7 +955,9 @@ def import_customers(
     failed = 0
 
     for row in rows:
+
         try:
+
             with db.begin_nested():
 
                 customer = Customer(
@@ -1007,9 +977,7 @@ def import_customers(
                     ),
                     customer_type="Retail",
                     customer_segment="New",
-                    preferred_sales_channel=(
-                        "Retail Store"
-                    ),
+                    preferred_sales_channel="Retail Store",
                     is_active=True,
                 )
 
@@ -1032,7 +1000,9 @@ def import_sales(
     failed = 0
 
     for row in rows:
+
         try:
+
             with db.begin_nested():
 
                 customer = find_customer(
@@ -1072,10 +1042,8 @@ def import_sales(
                 inventory = (
                     db.query(Inventory)
                     .filter(
-                        Inventory.company_id
-                        == company_id,
-                        Inventory.product_id
-                        == product.id,
+                        Inventory.company_id == company_id,
+                        Inventory.product_id == product.id,
                     )
                     .first()
                 )
@@ -1115,9 +1083,7 @@ def import_sales(
 
                 sale = Sale(
                     company_id=company_id,
-                    invoice_number=(
-                        generate_invoice_number()
-                    ),
+                    invoice_number=generate_invoice_number(),
                     customer_id=customer.id,
                     customer_name=customer.full_name,
                     sale_date=sale_date,
@@ -1160,8 +1126,7 @@ def process_import(
         db.query(ImportHistory)
         .filter(
             ImportHistory.id == import_id,
-            ImportHistory.company_id
-            == current_user.company_id,
+            ImportHistory.company_id == current_user.company_id,
         )
         .first()
     )
@@ -1183,6 +1148,7 @@ def process_import(
     file_bytes = file_path.read_bytes()
 
     try:
+
         _, rows = parse_csv_bytes(
             file_bytes,
             history.import_type,
@@ -1236,9 +1202,7 @@ def process_import(
                 current_user.company_id,
             )
 
-        validation_failures = (
-            validation["invalid_records"]
-        )
+        validation_failures = validation["invalid_records"]
 
         history.total_records = len(rows)
 
@@ -1261,22 +1225,56 @@ def process_import(
 
         db.commit()
 
+        # =====================================================
+        # TASK 14 — IMPORT NOTIFICATION
+        # =====================================================
+
+        if history.status == "Completed":
+
+            notify_admins(
+                db=db,
+                company_id=current_user.company_id,
+                notification_type="Import Completed",
+                title="Data Import Completed",
+                message=(
+                    f"{history.import_type} import "
+                    f"'{history.filename}' completed successfully. "
+                    f"{history.successful_records} records imported."
+                ),
+                priority="Low",
+                resource_type="Import",
+                resource_id=history.id,
+                expires_in_hours=48,
+            )
+
+        elif history.status == "Completed with Errors":
+
+            notify_admins(
+                db=db,
+                company_id=current_user.company_id,
+                notification_type="Import Completed",
+                title="Data Import Completed with Errors",
+                message=(
+                    f"{history.import_type} import "
+                    f"'{history.filename}' completed with errors. "
+                    f"Successful: {history.successful_records}, "
+                    f"Failed: {history.failed_records}, "
+                    f"Duplicates: {history.duplicate_records}."
+                ),
+                priority="Medium",
+                resource_type="Import",
+                resource_id=history.id,
+                expires_in_hours=48,
+            )
+
         return {
             "import_id": history.id,
             "import_type": history.import_type,
             "total_records": history.total_records,
-            "successful_records": (
-                history.successful_records
-            ),
-            "failed_records": (
-                history.failed_records
-            ),
-            "duplicate_records": (
-                history.duplicate_records
-            ),
-            "validation_failures": (
-                validation_failures
-            ),
+            "successful_records": history.successful_records,
+            "failed_records": history.failed_records,
+            "duplicate_records": history.duplicate_records,
+            "validation_failures": validation_failures,
             "status": history.status,
         }
 
@@ -1284,21 +1282,42 @@ def process_import(
         raise
 
     except Exception:
+
         db.rollback()
 
         history = (
             db.query(ImportHistory)
             .filter(
                 ImportHistory.id == import_id,
-                ImportHistory.company_id
-                == current_user.company_id,
+                ImportHistory.company_id == current_user.company_id,
             )
             .first()
         )
 
         if history:
+
             history.status = "Failed"
+
             db.commit()
+
+            # =================================================
+            # TASK 14 — IMPORT FAILURE NOTIFICATION
+            # =================================================
+
+            notify_admins(
+                db=db,
+                company_id=current_user.company_id,
+                notification_type="Import Failed",
+                title="Data Import Failed",
+                message=(
+                    f"{history.import_type} import "
+                    f"'{history.filename}' failed during processing."
+                ),
+                priority="High",
+                resource_type="Import",
+                resource_id=history.id,
+                expires_in_hours=48,
+            )
 
         raise HTTPException(
             status_code=500,
@@ -1313,8 +1332,7 @@ def get_import_history(
     return (
         db.query(ImportHistory)
         .filter(
-            ImportHistory.company_id
-            == current_user.company_id
+            ImportHistory.company_id == current_user.company_id
         )
         .order_by(
             ImportHistory.created_at.desc()
@@ -1332,8 +1350,7 @@ def get_import_details(
         db.query(ImportHistory)
         .filter(
             ImportHistory.id == import_id,
-            ImportHistory.company_id
-            == current_user.company_id,
+            ImportHistory.company_id == current_user.company_id,
         )
         .first()
     )
@@ -1350,15 +1367,9 @@ def get_import_details(
         "filename": history.filename,
         "uploaded_by": history.uploaded_by,
         "total_records": history.total_records,
-        "successful_records": (
-            history.successful_records
-        ),
-        "failed_records": (
-            history.failed_records
-        ),
-        "duplicate_records": (
-            history.duplicate_records
-        ),
+        "successful_records": history.successful_records,
+        "failed_records": history.failed_records,
+        "duplicate_records": history.duplicate_records,
         "status": history.status,
         "created_at": history.created_at,
         "completed_at": history.completed_at,
@@ -1374,8 +1385,7 @@ def get_import_errors(
         db.query(ImportHistory)
         .filter(
             ImportHistory.id == import_id,
-            ImportHistory.company_id
-            == current_user.company_id,
+            ImportHistory.company_id == current_user.company_id,
         )
         .first()
     )
@@ -1389,8 +1399,7 @@ def get_import_errors(
     error_records = (
         db.query(ImportErrorRecord)
         .filter(
-            ImportErrorRecord.import_id
-            == import_id
+            ImportErrorRecord.import_id == import_id
         )
         .order_by(
             ImportErrorRecord.row_number
@@ -1406,7 +1415,6 @@ def get_import_errors(
             row_data = json.loads(
                 error.row_data or "{}"
             )
-
         except json.JSONDecodeError:
             row_data = {}
 

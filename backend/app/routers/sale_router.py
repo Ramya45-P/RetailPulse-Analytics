@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -19,6 +18,12 @@ from app.services.sale_service import (
     get_sale_details,
     update_sale,
     delete_sale,
+)
+
+from app.services.notification_service import (
+    notify_admins,
+    notify_inventory_roles,
+    evaluate_inventory_alerts,
 )
 
 
@@ -44,10 +49,47 @@ def create(
     # Always use the logged-in user's company
     sale.company_id = current_user.company_id
 
-    return create_sale(
+    # --------------------------------------------------------
+    # CREATE SALE
+    # --------------------------------------------------------
+
+    created_sale = create_sale(
         db,
         sale,
     )
+
+    # --------------------------------------------------------
+    # TASK 14 — SALES NOTIFICATION
+    # --------------------------------------------------------
+
+    try:
+        notify_admins(
+            db=db,
+            company_id=current_user.company_id,
+            notification_type="Sales Alert",
+            title="New Sale Recorded",
+            message="A new sales transaction has been recorded.",
+            priority="Low",
+            resource_type="Sale",
+            resource_id=created_sale.id,
+            expires_in_hours=24,
+        )
+
+        # ----------------------------------------------------
+        # TASK 14 — INVENTORY ALERT EVALUATION
+        # ----------------------------------------------------
+
+        evaluate_inventory_alerts(
+            db=db,
+            company_id=current_user.company_id,
+        )
+
+    except Exception as e:
+        # Notification failure must not break
+        # an otherwise successful sale transaction.
+        print("TASK 14 NOTIFICATION ERROR:", e)
+
+    return created_sale
 
 
 # ============================================================
@@ -91,9 +133,6 @@ def get_details(
 # ============================================================
 # UPDATE SALE
 # ============================================================
-# ============================================================
-# UPDATE SALE
-# ============================================================
 
 @router.put(
     "/{sale_id}",
@@ -119,12 +158,29 @@ def update(
         payment_method=sale.payment_method,
     )
 
-    return update_sale(
+    updated_sale = update_sale(
         db,
         sale_id,
         current_user.company_id,
         sale_data,
     )
+
+    # --------------------------------------------------------
+    # TASK 14 — INVENTORY ALERT EVALUATION
+    # --------------------------------------------------------
+
+    try:
+        evaluate_inventory_alerts(
+            db=db,
+            company_id=current_user.company_id,
+        )
+
+    except Exception as e:
+        # Do not break sale update if notification
+        # evaluation encounters an error.
+        print("TASK 14 INVENTORY NOTIFICATION ERROR:", e)
+
+    return updated_sale
 
 
 # ============================================================
@@ -144,4 +200,3 @@ def delete(
         sale_id,
         current_user.company_id,
     )
-
