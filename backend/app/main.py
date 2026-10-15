@@ -1,3 +1,6 @@
+from contextlib import asynccontextmanager
+from app.report_scheduler import start_report_scheduler, stop_report_scheduler
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database.database import Base, engine
@@ -15,6 +18,9 @@ from app.models.import_history import ImportHistory
 from app.models.import_error import ImportErrorRecord
 from app.models.audit_log import AuditLog
 from app.models.notification import Notification
+from app.models.report_history import ReportHistory
+from app.models.scheduled_report import ScheduledReport
+
 
 from app.routers.company_router import router as company_router
 from app.routers.auth_router import router as auth_router
@@ -31,12 +37,23 @@ from app.routers.forecast_router import router as forecast_router
 from app.routers.import_router import router as import_router
 from app.routers.audit_router import router as audit_router
 from app.routers.notification_router import router as notification_router
+from app.routers.reporting_router import router as reporting_router
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_report_scheduler()
+    try:
+        yield
+    finally:
+        stop_report_scheduler()
 
 
 app = FastAPI(
     title="RetailPulse Analytics API",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan,
 )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -64,6 +81,8 @@ app.include_router(forecast_router)
 app.include_router(import_router)
 app.include_router(audit_router)
 app.include_router(notification_router)
+app.include_router(reporting_router)
+
 
 @app.get("/")
 def root():
